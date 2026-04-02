@@ -1,0 +1,2443 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Интеллект-карта – План ЕГЭ</title>
+  <style>
+    /* --- БАЗОВЫЕ ПЕРЕМЕННЫЕ И ТЕМЫ --- */
+    :root {
+      --bg-main: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-splash: #ffffff;
+      --bg-bank: #f1f5f9;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --success: #10b981;
+      --success-bg: #d1fae5;
+      --error: #ef4444;
+      --error-bg: #fee2e2;
+      --border: #e2e8f0;
+      --line-color: #cbd5e1;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-top: 0 -4px 10px rgba(0, 0, 0, 0.05);
+      
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+    }
+
+    [data-theme="dark"] {
+      --bg-main: #0f172a;
+      --bg-surface: #1e293b;
+      --bg-splash: #0f172a;
+      --bg-bank: #0f172a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #3b82f6;
+      --accent-hover: #60a5fa;
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.15);
+      --error: #ef4444;
+      --error-bg: rgba(239, 68, 68, 0.15);
+      --border: #334155;
+      --line-color: #475569;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+      --shadow-top: 0 -4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.4;
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* --- СТАРТОВЫЙ ЭКРАН --- */
+    #splash-screen {
+      position: fixed;
+      inset: 0;
+      background-color: var(--bg-splash);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 2rem;
+      text-align: center;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    #splash-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+    .splash-icon {
+      width: 80px;
+      height: 80px;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+    }
+    .splash-title {
+      font-size: clamp(1.5rem, 6vw, 2.5rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+      word-break: break-word;
+      hyphens: auto;
+    }
+    .splash-desc {
+      font-size: clamp(0.95rem, 3vw, 1.1rem);
+      color: var(--text-muted);
+      margin-bottom: 2.5rem;
+      max-width: 500px;
+      line-height: 1.5;
+    }
+    .btn-start {
+      background-color: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 1rem 3rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 99px;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      animation: pulse 2s infinite;
+      transition: transform 0.2s ease;
+    }
+    .btn-start:active { transform: scale(0.95); }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+      70% { box-shadow: 0 0 0 15px rgba(37, 99, 235, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+    }
+
+    [data-theme="dark"] .btn-start { animation: pulse-dark 2s infinite; }
+    @keyframes pulse-dark {
+      0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+      70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+
+    /* --- ОСНОВНОЙ ИНТЕРФЕЙС --- */
+    #app-ui {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease 0.2s, visibility 0.5s ease 0.2s;
+    }
+    #app-ui.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Шапка */
+    .header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: env(safe-area-inset-top, 15px) 15px 10px;
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+    .header-title-box {
+      flex: 1;
+      min-width: 0;
+      margin-right: 10px;
+    }
+    .header-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .header-controls {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .btn-icon {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
+    }
+    .btn-icon:active { transform: scale(0.9); }
+    .btn-blue {
+      background-color: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .btn-blue svg { stroke: #fff; fill: none; }
+    
+    .btn-nav-plan {
+      background-color: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* Инструкция */
+    .instruction-bar {
+      background-color: var(--accent-soft);
+      color: var(--accent);
+      padding: 10px 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* --- РАБОЧАЯ ЗОНА: ДЕРЕВО ПЛАНА --- */
+    .workspace {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 15px 40px;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+    }
+
+    .tree-root {
+      background-color: var(--text-main);
+      color: var(--bg-surface);
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-weight: 800;
+      font-size: 1.1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Кнопки справки (Tooltips) */
+    .info-toggle {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: inherit;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .tree-root .info-toggle { color: var(--bg-surface); }
+    .category-title .info-toggle { background: var(--accent-soft); color: var(--accent); }
+    .slot-content .info-toggle { background: var(--accent-soft); color: var(--accent); margin-left: 10px; }
+    
+    .info-toggle:hover, .info-toggle:active {
+      transform: scale(1.1);
+      background: var(--accent);
+      color: #fff;
+    }
+    .info-toggle svg { width: 16px; height: 16px; }
+
+    /* Панель с текстом справки (расширенная для подробного текста) */
+    .info-panel {
+      display: none;
+      background-color: var(--bg-surface);
+      color: var(--text-main);
+      padding: 12px 18px;
+      font-size: 0.95rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 15px;
+      border-left: 4px solid var(--accent);
+      box-shadow: var(--shadow-md);
+      animation: fadeInDown 0.2s ease;
+      max-width: 600px;
+      line-height: 1.5;
+    }
+    .info-panel.active { display: block; }
+    .info-panel.root-info { margin-left: 20px; background-color: var(--accent-soft); }
+    .tree-category .info-panel { margin-left: 25px; position: relative; z-index: 2; }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tree-container {
+      position: relative;
+      margin-left: 20px;
+      padding-left: 20px;
+      border-left: 2px solid var(--line-color);
+    }
+
+    .tree-category {
+      position: relative;
+      margin-bottom: 25px;
+    }
+    .tree-category::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 15px;
+      width: 20px;
+      height: 2px;
+      background-color: var(--line-color);
+    }
+
+    .category-title {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .slots-container {
+      padding-left: 25px;
+      position: relative;
+      border-left: 2px solid var(--line-color);
+      margin-left: 15px;
+    }
+
+    .slot-wrapper {
+      position: relative;
+      margin-bottom: 8px;
+    }
+    .slot-wrapper::before {
+      content: '';
+      position: absolute;
+      left: -25px;
+      top: 50%;
+      width: 25px;
+      height: 2px;
+      background-color: var(--line-color);
+    }
+
+    .tree-category:last-child > .slots-container { border-left: none; }
+    .tree-category:last-child > .slots-container .slot-wrapper::after {
+      content: '';
+      position: absolute;
+      left: -27px;
+      bottom: 50%;
+      width: 4px;
+      height: 100%;
+      background-color: var(--bg-main); 
+      z-index: -1;
+    }
+
+    /* Сами слоты */
+    .slot {
+      background-color: transparent;
+      border: 2px dashed var(--text-muted);
+      border-radius: var(--radius-sm);
+      padding: 10px 15px;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      word-break: break-word;
+      user-select: none;
+    }
+
+    .slot-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .slot.highlight {
+      border-color: var(--accent);
+      background-color: var(--accent-soft);
+      transform: scale(1.02);
+    }
+
+    .slot.filled {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--success);
+      color: var(--text-main);
+      font-weight: 600;
+      box-shadow: var(--shadow-sm);
+      flex-direction: column;
+      align-items: stretch;
+      padding: 8px 15px;
+    }
+
+    .slot.error-anim {
+      animation: shake 0.4s ease;
+      background-color: var(--error-bg);
+      border-color: var(--error);
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+
+    /* --- БАНК ТЕРМИНОВ (НИЖНЯЯ ПАНЕЛЬ) --- */
+    .bank-panel {
+      flex-shrink: 0;
+      height: 35vh;
+      min-height: 200px;
+      background-color: var(--bg-bank);
+      border-top: 1px solid var(--border);
+      box-shadow: var(--shadow-top);
+      display: flex;
+      flex-direction: column;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+      z-index: 20;
+    }
+
+    .bank-header {
+      padding: 12px 15px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .bank-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .term-item {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .term-item:active { transform: scale(0.95); }
+
+    .term-item.selected {
+      background-color: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .victory-msg {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      color: var(--success);
+      padding: 20px;
+    }
+    .victory-msg svg { width: 48px; height: 48px; margin-bottom: 10px; }
+    .victory-msg h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 15px; }
+    
+    .btn-next-victory {
+      background-color: var(--success);
+      color: #fff;
+      border: none;
+      padding: 10px 24px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 99px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.2s;
+    }
+    .btn-next-victory:active { transform: scale(0.95); }
+
+  </style>
+</head>
+<body>
+
+  <!-- ИКОНКИ -->
+  <svg style="display: none;">
+    <defs>
+      <symbol id="icon-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="3" y1="9" x2="21" y2="9"></line>
+        <line x1="9" y1="21" x2="9" y2="9"></line>
+      </symbol>
+      <symbol id="icon-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </symbol>
+      <symbol id="icon-sun" viewBox="0 0 24 24"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18.75a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM6.166 17.834a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 101.06-1.061l-1.59-1.59zM4.5 12a.75.75 0 01-.75.75H1.5a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM6.166 6.166a.75.75 0 001.06-1.06l-1.59-1.59a.75.75 0 00-1.061 1.06l1.59 1.59z"/></symbol>
+      <symbol id="icon-moon" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clip-rule="evenodd"/></symbol>
+      <symbol id="icon-maximize" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></symbol>
+      <symbol id="icon-minimize" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol>
+      <symbol id="icon-forward" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></symbol>
+      <symbol id="icon-backward" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></symbol>
+    </defs>
+  </svg>
+
+  <!-- СТАРТОВЫЙ ЭКРАН -->
+  <div id="splash-screen">
+    <svg class="splash-icon"><use href="#icon-map"></use></svg>
+    <h1 class="splash-title">РАЗДЕЛ 1: ЧЕЛОВЕК И ОБЩЕСТВО</h1>
+    <p class="splash-desc">Интеллект-карта. Выберите термин в банке снизу и нажмите на подходящее пустое место в схеме.</p>
+    <button class="btn-start" id="btn-start">Начать изучение</button>
+  </div>
+
+  <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
+  <div id="app-ui">
+    
+    <header class="header">
+      <div class="header-title-box">
+        <div class="header-title">Сборка плана</div>
+        <div class="header-subtitle" id="header-subtitle">Загрузка...</div>
+      </div>
+      <div class="header-controls">
+        <button class="btn-icon btn-nav-plan" id="btn-prev-plan" title="Предыдущий план">
+          <svg><use href="#icon-backward"></use></svg>
+        </button>
+        <button class="btn-icon btn-nav-plan" id="btn-skip-plan" title="Следующий план">
+          <svg><use href="#icon-forward"></use></svg>
+        </button>
+        <button class="btn-icon" id="btn-theme" title="Сменить тему">
+          <svg><use id="icon-theme-use" href="#icon-moon"></use></svg>
+        </button>
+        <button class="btn-icon btn-blue" id="btn-fullscreen" title="На весь экран">
+          <svg><use id="icon-fullscreen-use" href="#icon-maximize"></use></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="instruction-bar" id="instruction">
+      1. Нажмите на термин внизу. 2. Нажмите на пустой слот.
+    </div>
+
+    <!-- РАБОЧАЯ ЗОНА: ДЕРЕВО (МАЙНД-МЭП) -->
+    <main class="workspace" id="workspace">
+      <!-- Генерируется динамически -->
+    </main>
+
+    <!-- БАНК ТЕРМИНОВ -->
+    <div class="bank-panel">
+      <div class="bank-header">
+        <span>Банк терминов (<span id="terms-left">0</span>)</span>
+      </div>
+      <div class="bank-items" id="bank-items">
+        <!-- Генерируется динамически -->
+      </div>
+      <div class="victory-msg" id="victory-msg">
+        <svg><use href="#icon-check"></use></svg>
+        <h3>План успешно собран!</h3>
+        <button class="btn-next-victory" id="btn-next-victory">
+          К следующему плану <svg><use href="#icon-forward"></use></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // --- ЭКСПЕРТНАЯ БАЗА ДАННЫХ ПЛАНОВ (32 ПЛАНА) ---
+    // Строгие правила: среднее тире (–), строчная буква после двоеточия.
+    const allPlans = [
+      {
+        title: "Системное строение общества",
+        titleDesc: "Общество как система характеризуется наличием тесно взаимосвязанных сфер и социальных институтов, которые непрерывно развиваются, взаимодействуют друг с другом и выполняют специфические функции, необходимые для сохранения целостности всего общества.",
+        categories: [
+          { 
+            title: "1. Понятие общества.", 
+            desc: "Обособившаяся от природы, но тесно с ней связанная часть материального мира, включающая в себя способы взаимодействия и формы объединения людей.", 
+            type: "static" 
+          },
+          {
+            title: "2. Признаки общества как системы:",
+            desc: "Признаки системы – это фундаментальные, сущностные характеристики, позволяющие рассматривать общество не как простую толпу, а как сложный, саморегулирующийся и постоянно развивающийся механизм.",
+            type: "interactive",
+            items: [
+              { text: "иерархичность", desc: "Соподчиненность элементов, расположение частей целого в порядке от высшего к низшему. Например, местные органы власти подчиняются федеральным, образуя строгую систему управления." },
+              { text: "динамичность", desc: "Способность системы к развитию, изменению во времени при сохранении своей качественной специфики. Общество никогда не стоит на месте: одни институты отмирают, другие появляются." },
+              { text: "целостность", desc: "Свойство системы, при котором её качества не сводятся к простой сумме свойств её элементов. Общество функционирует как единый слаженный организм." },
+              { text: "устойчивость и др.", desc: "Способность общественной системы сохранять свою структуру и выполнять основные функции даже при воздействии мощных внешних и внутренних потрясений." }
+            ]
+          },
+          {
+            title: "3. Функции общества как системы:",
+            desc: "Функции общества – это основные, жизненно важные задачи и направления деятельности, которые общество обязано выполнять для собственного выживания, сохранения стабильности и развития.",
+            type: "interactive",
+            items: [
+              { text: "адаптация", desc: "Процесс приспособления общества к постоянно изменяющимся условиям окружающей природной и исторической среды (например, создание новых технологий для добычи ресурсов)." },
+              { text: "целеполагание", desc: "Способность общества самостоятельно ставить цели своего развития и эффективно мобилизовать экономические и человеческие ресурсы для их достижения." },
+              { text: "интеграция", desc: "Объединение всех элементов общества, поддержание внутреннего единства, солидарности и предотвращение разрушительных социальных конфликтов." },
+              { text: "поддержание культурного образца и др.", desc: "Сохранение и трансляция новым поколениям устоявшихся норм, традиций, духовных и моральных ценностей, накопленных предками." }
+            ]
+          },
+          {
+            title: "4. Сферы (подсистемы) жизни общества:",
+            desc: "Сферы общественной жизни – это крупные, относительно самостоятельные области человеческой деятельности, направленные на удовлетворение важнейших базовых потребностей людей.",
+            type: "interactive",
+            items: [
+              { text: "политическая", desc: "Сфера, осуществляющая управление обществом и обеспечение безопасности. Включает в себя государство, политические партии, законы и армию." },
+              { text: "экономическая", desc: "Сфера, отвечающая за производство, распределение, обмен и потребление материальных благ. Удовлетворяет базовые потребности людей в пище, жилье и одежде." },
+              { text: "социальная", desc: "Сфера, охватывающая взаимодействие различных социальных групп, слоев и общностей. Включает системы здравоохранения, соцзащиты и институт семьи." },
+              { text: "духовная", desc: "Сфера создания, сохранения и трансляции нравственных, научных и эстетических ценностей. Включает науку, образование, религию и искусство." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Социальные институты",
+        titleDesc: "Социальный институт – это исторически сложившаяся, устойчивая форма организации совместной деятельности людей, направленная на удовлетворение базовых потребностей общества и регулируемая социальными нормами.",
+        categories: [
+          { 
+            title: "1. Понятие социального института.", 
+            desc: "Исторически сложившаяся устойчивая форма организации совместной деятельности людей, направленной на удовлетворение фундаментальных потребностей общества.", 
+            type: "static" 
+          },
+          {
+            title: "2. Признаки социальных институтов:",
+            desc: "Существенные черты, отличающие сформированный и функционирующий социальный институт от случайной или временной социальной группы.",
+            type: "interactive",
+            items: [
+              { text: "наличие системы ролей и статусов, социальных норм и санкций", desc: "Каждый институт имеет строгую внутреннюю организацию. Например, в школе есть роли «учитель» и «ученик», а их взаимодействие регулируется уставом (нормой)." },
+              { text: "наличие учреждений", desc: "Социальные институты всегда опираются на материальную базу. Для государства это здания парламента и судов, для медицины – больницы и поликлиники." },
+              { text: "наличие культурных символов и др.", desc: "Визуальные, аудиальные или смысловые знаки, концентрирующие идею института (герб и флаг для государства, обручальное кольцо для семьи)." }
+            ]
+          },
+          {
+            title: "3. Функции социальных институтов:",
+            desc: "Объективные последствия деятельности социальных институтов, их реальная польза и вклад в сохранение стабильности общества.",
+            type: "interactive",
+            items: [
+              { text: "удовлетворение базовых общественных потребностей", desc: "Главная причина возникновения любого института. Институт экономики нужен для удовлетворения материальных нужд, институт науки – для познания мира." },
+              { text: "организационная", desc: "Упорядочивание, стандартизация и координация совместной деятельности огромных масс людей, исключение хаоса." },
+              { text: "регулятивная и др.", desc: "Установление жестких правил (социальных норм) и контроль за поведением индивидов с помощью механизма социальных поощрений и наказаний (санкций)." }
+            ]
+          },
+          {
+            title: "4. Виды социальных институтов:",
+            desc: "Классификация социальных институтов в зависимости от сферы общественной жизни, в которой они возникли и осуществляют свою деятельность.",
+            type: "interactive",
+            items: [
+              { text: "политические: власть, государство и др.", desc: "Институты, регулирующие отношения по поводу завоевания, удержания и использования государственной власти, обеспечивающие безопасность и порядок." },
+              { text: "экономические: деньги, собственность и др.", desc: "Институты, организующие процесс производства, распределения и обмена материальных благ в условиях ограниченности ресурсов." },
+              { text: "духовные: наука, мораль и др.", desc: "Институты, создающие, сохраняющие и транслирующие новым поколениям культурные, нравственные, эстетические и религиозные ценности." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Типы обществ",
+        titleDesc: "Социологические концепции выделяют различные исторические этапы развития человечества, классифицируя их по уровню развития технологий, экономики, способам коммуникации и преобладающей культуре.",
+        categories: [
+          {
+            title: "1. Типы обществ:",
+            desc: "Фундаментальные подходы макросоциологии к периодизации исторического процесса и разделению человеческих обществ на типы.",
+            type: "interactive",
+            items: [
+              { text: "письменные и дописьменные", desc: "Классификация, предложенная социологами на основе важнейшего критерия – наличия или отсутствия у народа закрепленной письменности для передачи информации." },
+              { text: "простые и сложные", desc: "Классификация по уровню социальной структуры: простые общества не имеют социального неравенства и государства, сложные – характеризуются расслоением и аппаратом управления." },
+              { text: "традиционные, индустриальные, постиндустриальные", desc: "Главная типология (теория стадий), основанная на технологическом уровне, типе производства и доминирующем секторе экономики." }
+            ]
+          },
+          {
+            title: "2. Признаки традиционного общества:",
+            desc: "Характерные черты аграрного (доиндустриального) этапа развития, на котором человечество находилось большую часть своей истории.",
+            type: "interactive",
+            items: [
+              { text: "натуральное хозяйство", desc: "Основа экономики – ручной труд и земледелие. Продукты производятся не для продажи на рынке, а преимущественно для удовлетворения собственных нужд общины." },
+              { text: "религиозный характер культуры", desc: "Мировоззрение людей полностью пронизано верой в сверхъестественное, религия доминирует во всех сферах жизни и объясняет устройство мира." },
+              { text: "сословная структура и др.", desc: "Жесткое деление общества на замкнутые группы с неравными правами, закрепленными в законе или традициях. Крайне низкий уровень социальной мобильности." }
+            ]
+          },
+          {
+            title: "3. Признаки индустриального общества:",
+            desc: "Особенности общества, возникшего в результате промышленной революции, перехода от ручного труда к фабричному производству.",
+            type: "interactive",
+            items: [
+              { text: "капитал – основной фактор производства", desc: "Для успешной экономики требуются колоссальные финансовые вложения и средства производства (станки, заводы, оборудование)." },
+              { text: "рост класса пролетариата", desc: "Резкое увеличение численности наемных промышленных рабочих, трудящихся на фабриках и заводах." },
+              { text: "появление массовой культуры и др.", desc: "Формирование стандартизированной, коммерческой культуры, понятной широким слоям городского населения (кинематограф, радио, бульварная пресса)." }
+            ]
+          },
+          {
+            title: "4. Признаки постиндустриального общества:",
+            desc: "Характерные черты современного (информационного) этапа исторического развития человечества, наступившего во второй половине XX века.",
+            type: "interactive",
+            items: [
+              { text: "информация – главный фактор производства", desc: "В современной экономике знания, базы данных и передовые научные разработки ценятся выше, чем заводы или сырье." },
+              { text: "преобладание среднего класса", desc: "Стирание резких границ между богатыми и бедными. Большую часть общества составляют высококвалифицированные специалисты, обеспечивающие стабильность государства." },
+              { text: "роботизация производства и др.", desc: "Внедрение высоких технологий, компьютеризация, полная замена тяжелого физического ручного труда автоматизированными системами." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Общество как динамическая система",
+        titleDesc: "Общество никогда не находится в состоянии абсолютного покоя. Это сложная динамическая система, которая непрерывно видоизменяется, адаптируется и эволюционирует на протяжении всей истории человечества.",
+        categories: [
+          {
+            title: "1. Проявления динамичности общества:",
+            desc: "Конкретные исторические процессы, доказывающие, что социум способен изменяться, не теряя при этом своей целостности.",
+            type: "interactive",
+            items: [
+              { text: "появление/исчезновение социальных структур", desc: "Замена устаревших институтов новыми. Например, исчезновение института рабства или инквизиции и появление института электронных выборов." },
+              { text: "трансформация элементов общества", desc: "Качественное изменение внутренних свойств института. Например, переход от патриархальной многопоколенной семьи к современной нуклеарной." },
+              { text: "деградация элементов и др.", desc: "Утрата социальным институтом своих изначальных функций, упрощение его структуры или полный распад из-за неспособности адаптироваться к новым условиям." }
+            ]
+          },
+          {
+            title: "2. Направления общественного развития:",
+            desc: "Векторы, показывающие, в какую именно сторону – к усложнению или упрощению – движется исторический процесс.",
+            type: "interactive",
+            items: [
+              { text: "прогресс", desc: "Направление развития общества, для которого характерен переход от низшего к высшему, от менее совершенных форм организации к более совершенным." },
+              { text: "регресс", desc: "Направление развития, характеризующееся возвратом общества к изжившим себя формам и структурам, деградацией, упадком и утратой достигнутого уровня." }
+            ]
+          },
+          {
+            title: "3. Критерии общественного прогресса:",
+            desc: "Объективные показатели и мерила, позволяющие ученым оценить, стало ли общество более совершенным по сравнению с прошлыми эпохами.",
+            type: "interactive",
+            items: [
+              { text: "развитие науки и техники", desc: "Один из объективных критериев, отражающий рост изобретений, технологических открытий и уровня автоматизации труда." },
+              { text: "степень свободы человека", desc: "Так называемый гуманистический (высший) критерий прогресса, оценивающий уровень защиты прав личности и возможности для ее самореализации." },
+              { text: "развитие производительных сил и др.", desc: "Экономический критерий: способность общества производить больше качественных материальных благ с меньшими затратами ресурсов." }
+            ]
+          },
+          {
+            title: "4. Формы социальных изменений:",
+            desc: "Конкретные пути, способы и скорости, с помощью которых происходят трансформации в социальной структуре.",
+            type: "interactive",
+            items: [
+              { text: "эволюция", desc: "Форма развития общества, для которой характерно относительно медленное, непрерывное, постепенное изменение элементов без разрушения основ строя." },
+              { text: "реформа", desc: "Целенаправленное преобразование какой-либо стороны общественной жизни, проводимое органами государственной власти и не уничтожающее основ существующего строя." },
+              { text: "социальная революция", desc: "Радикальное, качественное изменение, резкий скачок в развитии общества, полностью изменяющий основы социальной жизни и политический строй." }
+            ]
+          },
+          { 
+            title: "5. Социальное изменение и социальное развитие.", 
+            desc: "Социальное изменение – переход социальных систем из одного состояния в другое. Социальное развитие – всегда необратимое, направленное и закономерное изменение общества.", 
+            type: "static" 
+          }
+        ]
+      },
+      {
+        title: "Глобализация",
+        titleDesc: "Глобализация – это объективный процесс всемирной экономической, политической и культурной интеграции и унификации, приводящий к становлению единого взаимозависимого человечества.",
+        categories: [
+          { 
+            title: "1. Понятие глобализации.", 
+            desc: "Процесс значительного роста взаимовлияния и взаимозависимости народов и государств, охватывающий все сферы общественной жизни.", 
+            type: "static" 
+          },
+          {
+            title: "2. Факторы глобализации:",
+            desc: "Глубинные причины и исторические предпосылки, которые ускорили процесс стирания границ между государствами.",
+            type: "interactive",
+            items: [
+              { text: "распространение информационных технологий", desc: "Появление интернета, спутниковой связи и скоростного транспорта позволило мгновенно передавать огромные массивы данных между континентами." },
+              { text: "углубление международного разделения труда", desc: "Ситуация, при которой странам выгоднее специализироваться на производстве конкретных товаров (где у них есть преимущество) и обмениваться ими на мировом рынке." },
+              { text: "рост транснациональных корпораций и др.", desc: "ТНК (например, Apple или Toyota) ведут свой бизнес по всему миру, размещая производства в одних странах, а центры разработки – в других, объединяя мировую экономику." }
+            ]
+          },
+          { 
+            title: "3. Проявления глобализации.", 
+            desc: "Создание транснациональных корпораций (ТНК), глобальных финансовых рынков, массовые миграции населения и формирование единого информационного пространства (Интернет).", 
+            type: "static" 
+          },
+          {
+            title: "4. Негативные последствия глобализации:",
+            desc: "Минусы и серьезные угрозы, возникающие в результате стремительного объединения мира и стирания национальных границ.",
+            type: "interactive",
+            items: [
+              { text: "утрата культурной самобытности", desc: "Насаждение единого потребительского стандарта (вестернизация, макдональдизация), из-за которого народы теряют свой уникальный язык, традиции и культуру." },
+              { text: "ослабление политической автономии государств", desc: "Национальные правительства вынуждены подчиняться решениям международных организаций (МВФ, ВТО) и глобальных корпораций, теряя часть своего суверенитета." },
+              { text: "возникновение глобальных экономических кризисов и др.", desc: "Из-за тесной взаимозависимости экономический крах в одной крупной стране мгновенно вызывает «эффект домино» и приводит к мировому кризису." }
+            ]
+          },
+          {
+            title: "5. Позитивные последствия глобализации:",
+            desc: "Объективные плюсы интеграции, способствующие прогрессу человечества и улучшению качества жизни.",
+            type: "interactive",
+            items: [
+              { text: "формирование системы общечеловеческих ценностей", desc: "Утверждение во всем мире общих идеалов гуманизма, демократии и защиты базовых прав человека (например, через декларации ООН)." },
+              { text: "упрощение обмена технологиями", desc: "Передовые научные и медицинские открытия быстро становятся достоянием всего человечества, стимулируя рост мировой экономики." },
+              { text: "расширение культурного пространства и др.", desc: "Люди получают неограниченный доступ к шедеврам мирового искусства, литературе и кинематографу разных народов, что способствует взаимообогащению." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Глобальные проблемы",
+        titleDesc: "Глобальные проблемы современности – это комплекс острых социально-природных противоречий, затрагивающих судьбу всего человечества и требующих немедленных и скоординированных действий всех стран.",
+        categories: [
+          { 
+            title: "1. Понятие глобальных проблем.", 
+            desc: "Комплекс проблем человечества, которые встали перед ним во второй половине XX века и от решения которых зависит дальнейшее существование цивилизации.", 
+            type: "static" 
+          },
+          {
+            title: "2. Признаки глобальных проблем:",
+            desc: "Специфические черты, которые отличают глобальные вызовы от обычных региональных или национальных трудностей.",
+            type: "interactive",
+            items: [
+              { text: "угрожают выживанию человечества в целом", desc: "Проблемы носят катастрофический характер: в случае их нерешения под угрозой окажется само биологическое существование вида Homo Sapiens." },
+              { text: "затрагивают всё человечество", desc: "Проблемы имеют поистине планетарный масштаб. От последствий ядерной войны или разрушения озонового слоя не сможет укрыться ни одно государство." },
+              { text: "решаются совместными усилиями народов, государств и др.", desc: "Ни одна, даже самая богатая сверхдержава, не способна справиться с этими угрозами в одиночку; требуется международная кооперация и огромные финансовые затраты." }
+            ]
+          },
+          {
+            title: "3. Виды глобальных проблем:",
+            desc: "Классификация основных угроз, нависших над человечеством во второй половине XX – начале XXI века.",
+            type: "interactive",
+            items: [
+              { text: "экологические", desc: "Загрязнение Мирового океана, разрушение атмосферы, глобальное потепление и массовое исчезновение редких видов флоры и фауны." },
+              { text: "демографические", desc: "Двойственная проблема: катастрофическое перенаселение в развивающихся странах (Африка, Азия) и угроза депопуляции (старения и вымирания нации) в развитых странах Европы." },
+              { text: "проблема ограниченности ресурсов и др.", desc: "Сырьевая проблема, выражающаяся в неминуемом исчерпании запасов пресной воды, плодородных почв, нефти, газа и других полезных ископаемых." }
+            ]
+          },
+          {
+            title: "4. Способы решения глобальных проблем:",
+            desc: "Комплекс мер и стратегий, которые необходимо предпринять мировому сообществу для предотвращения катастрофы.",
+            type: "interactive",
+            items: [
+              { text: "экологическое просвещение граждан", desc: "Формирование у людей нового, планетарного мышления, воспитание бережного отношения к природе с раннего детства." },
+              { text: "продуманная демографическая политика", desc: "Государственное регулирование рождаемости: стимулирование рождаемости в Европе (пособия) и ее ограничение в странах Азии (планирование семьи)." },
+              { text: "рационализация потребления", desc: "Отказ от идеологии бездумного потребительства, переход к ресурсосберегающим технологиям, вторичной переработке сырья (рециклингу) и альтернативной энергетике." },
+              { text: "сотрудничество в сфере разоружения и др.", desc: "Подписание международных договоров о нераспространении ядерного и химического оружия, жесткий контроль за военными программами через институты ООН." }
+            ]
+          },
+          { 
+            title: "5. Взаимосвязь глобальных проблем.", 
+            desc: "Все глобальные проблемы тесно переплетены: например, демографический взрыв усугубляет нехватку продовольствия и обостряет экологический кризис.", 
+            type: "static" 
+          }
+        ]
+      },
+      {
+        title: "Биосоциальная сущность человека",
+        titleDesc: "Человек – это уникальное существо, в котором неразрывно и гармонично переплетены два начала: биологическое (роднящее его с животными) и социальное (формирующееся только в обществе).",
+        categories: [
+          { 
+            title: "1. Понятие человека.", 
+            desc: "Биосоциальное существо, высшая ступень развития организмов на Земле, субъект общественно-исторической деятельности и творец культуры.", 
+            type: "static" 
+          },
+          {
+            title: "2. Биологические свойства человека:",
+            desc: "Природное начало человека, закрепленное генетически и передающееся по наследству от предков.",
+            type: "interactive",
+            items: [
+              { text: "наличие инстинктов и рефлексов", desc: "Врожденные неосознанные реакции организма на раздражители (например, инстинкт самосохранения, сосательный и хватательный рефлексы у младенцев)." },
+              { text: "сходство вещественного состава и строения организма", desc: "Наличие таких же кровеносных, нервных, пищеварительных и дыхательных систем, как и у высших млекопитающих животных." },
+              { text: "наличие первичных (биологически обусловленных) потребностей и др.", desc: "Физиологическая нужда организма в пище, воде, сне, дыхании и температурном комфорте, без удовлетворения которой человек погибнет." }
+            ]
+          },
+          {
+            title: "3. Социальные свойства человека:",
+            desc: "Общественное начало человека, которое не заложено в генах и может быть приобретено только в процессе воспитания (социализации).",
+            type: "interactive",
+            items: [
+              { text: "наличие мировоззрения", desc: "Сформированная в сознании система взглядов, оценок и принципов, определяющая отношение человека к миру и самому себе." },
+              { text: "способность к мышлению и членораздельной речи", desc: "Способность абстрактно рассуждать, анализировать информацию и передавать сложнейшие смыслы с помощью языка." },
+              { text: "способность к сознательной преобразующей деятельности и др.", desc: "В отличие от животных, которые лишь приспосабливаются к среде, человек способен целенаправленно создавать сложные орудия труда и изменять саму природу." }
+            ]
+          },
+          {
+            title: "4. Взаимосвязь биологического и социального в человеке:",
+            desc: "Доказательства того, что две природы человека неразделимы: биология влияет на социум, а социум преобразует биологию.",
+            type: "interactive",
+            items: [
+              { text: "наследственность как фактор социального поведения", desc: "Врожденный темперамент (особенности нервной системы) во многом определяет то, как человек будет общаться и строить карьеру в обществе." },
+              { text: "социализированность биологических потребностей", desc: "Человек удовлетворяет свои животные нужды в культурных рамках: он не ест сырое мясо руками, а готовит пищу и использует столовые приборы." },
+              { text: "деятельность как условие развития задатков и др.", desc: "Гениальный музыкальный или математический дар (биологический задаток) так и останется скрытым, если общество не предоставит человеку доступ к образованию и инструментам." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Человек как личность",
+        titleDesc: "Личность – это индивид, обладающий уникальной совокупностью социально значимых качеств, свойств и черт, которые формируются в процессе социализации и реализуются в общественной жизни.",
+        categories: [
+          { 
+            title: "1. Понятие личности.", 
+            desc: "Человеческий индивид, являющийся субъектом сознательной деятельности, обладающий совокупностью социально значимых черт, свойств и качеств, которые он реализует в общественной жизни.", 
+            type: "static" 
+          },
+          {
+            title: "2. Элементы структуры личности:",
+            desc: "Внутреннее духовное и психологическое наполнение, из которого складывается уникальный облик конкретного человека.",
+            type: "interactive",
+            items: [
+              { text: "мировоззрение, интересы, убеждения и т.п.", desc: "Глубокие жизненные идеалы, философские и моральные принципы, ради которых человек готов действовать и отстаивать свою точку зрения." },
+              { text: "навыки, умения, привычки", desc: "Практический опыт и стереотипы поведения, усвоенные индивидом в процессе жизни в обществе." },
+              { text: "особенности психических процессов", desc: "Индивидуальные характеристики памяти, внимания, скорости мышления и эмоционального восприятия реальности." },
+              { text: "характер, темперамент, направленность личности и др.", desc: "Специфический сплав врожденной динамики нервной системы (темперамент) и приобретенных моральных качеств (характер)." }
+            ]
+          },
+          {
+            title: "3. Факторы формирования личности:",
+            desc: "Ключевые силы и условия, влияющие на то, каким именно вырастет человек.",
+            type: "interactive",
+            items: [
+              { text: "наследственность", desc: "Генетическая предрасположенность, здоровье и природные задатки, служащие фундаментом для дальнейшего развития." },
+              { text: "социальное окружение индивида", desc: "Колоссальное влияние агентов социализации: семьи, школьных учителей, компании друзей и коллег по работе." },
+              { text: "особенности культуры и др.", desc: "Влияние исторической эпохи, религии, национальных традиций и политического строя той страны, в которой воспитывается человек." }
+            ]
+          },
+          {
+            title: "4. Виды личностных качеств:",
+            desc: "Морально-этическая оценка сформированных черт личности со стороны общества.",
+            type: "interactive",
+            items: [
+              { text: "позитивные: доброта, честность и др.", desc: "Социально одобряемые качества, которые способствуют созиданию и гармоничному развитию общественных отношений." },
+              { text: "негативные качества: лицемерие, грубость и др.", desc: "Социально порицаемые черты, ведущие к конфликтам, девиантному поведению и разрушению социальных связей." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Мышление человека",
+        titleDesc: "Мышление – это высший познавательный процесс, представляющий собой активное, обобщенное и опосредованное отражение человеком объективной действительности в её существенных связях и отношениях.",
+        categories: [
+          { 
+            title: "1. Понятие мышления.", 
+            desc: "Способность человека к познанию существенных свойств и связей объектов, выходящих за рамки чувственной информации и практического опыта.", 
+            type: "static" 
+          },
+          {
+            title: "2. Особенности мышления:",
+            desc: "Специфические свойства мыслительного процесса, отличающие его от простого чувственного восприятия мира (зрения или слуха).",
+            type: "interactive",
+            items: [
+              { text: "связь с речью и языком", desc: "Неразрывное единство: мы мыслим словами и формулируем свои мысли с помощью логических конструкций языка." },
+              { text: "носит опосредованный характер", desc: "Человек способен познавать скрытые свойства вещей косвенным путем, через другие объекты (например, узнавать о температуре на улице, глядя на градусник, а не выходя на мороз)." },
+              { text: "носит избирательный характер и др.", desc: "Мышление концентрирует внимание только на самых важных, существенных свойствах проблемы, отбрасывая незначительные и случайные детали." }
+            ]
+          },
+          {
+            title: "3. Виды мышления:",
+            desc: "Классификация типов мышления в зависимости от формы, в которой решаются практические или теоретические задачи.",
+            type: "interactive",
+            items: [
+              { text: "предметно-действенное", desc: "Исторически первая форма: задача решается путем реального, физического манипулирования предметами (свойственно маленьким детям)." },
+              { text: "наглядно-образное", desc: "Мыслительный процесс опирается не на физические действия, а на представления и визуальные образы объектов, хранящиеся в памяти." },
+              { text: "словесно-логическое", desc: "Высший уровень мышления: оперирование абстрактными понятиями, формулами и теоретическими концепциями, недоступными для прямого наблюдения." }
+            ]
+          },
+          {
+            title: "4. Формы мышления:",
+            desc: "Логические структуры, в которых выражается и существует человеческая мысль.",
+            type: "interactive",
+            items: [
+              { text: "понятие", desc: "Исходная мысль, фиксирующая самые существенные и общие признаки целого класса объектов (например, понятие «дерево» или «государство»)." },
+              { text: "суждение", desc: "Логическая форма, в которой утверждается или отрицается наличие каких-либо свойств у предмета (например, «Земля вращается вокруг Солнца»)." },
+              { text: "умозаключение", desc: "Сложный логический процесс выведения совершенно нового знания (вывода) из нескольких связанных суждений-посылок." }
+            ]
+          },
+          {
+            title: "5. Операции мышления:",
+            desc: "Конкретные умственные действия и механизмы, с помощью которых мозг обрабатывает информацию.",
+            type: "interactive",
+            items: [
+              { text: "анализ", desc: "Мысленное расчленение сложного целого объекта на его составные части для их раздельного и детального изучения." },
+              { text: "синтез", desc: "Мысленное объединение отдельных элементов, частей или признаков в единое целое (создание новой концепции из разрозненных фактов)." },
+              { text: "абстрагирование и др.", desc: "Мысленное отвлечение от ряда несущественных свойств предмета ради выделения его самого важного, ключевого признака." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Сознание",
+        titleDesc: "Сознание – это высшая, свойственная только человеку форма психического отражения объективной действительности, основанная на осмыслении мира и субъективном отношении к нему.",
+        categories: [
+          { 
+            title: "1. Понятие сознания.", 
+            desc: "Высшая, свойственная только человеку форма обобщенного и целенаправленного отражения действительности, связанная с осмыслением событий и субъективным отношением к ним.", 
+            type: "static" 
+          },
+          {
+            title: "2. Структура сознания:",
+            desc: "Фундаментальные сферы и компоненты, из которых складывается вся полнота внутренней духовной жизни индивида.",
+            type: "interactive",
+            items: [
+              { text: "эмоциональная сфера", desc: "Чувства, переживания, аффекты и настроения, отражающие субъективное отношение человека к происходящему." },
+              { text: "когнитивная сфера", desc: "Познавательный компонент: ощущения, восприятия, память и логическое мышление, обеспечивающие накопление знаний." },
+              { text: "волевая сфера", desc: "Способность человека осознанно управлять своим поведением, преодолевать трудности и мобилизовать силы для достижения цели." }
+            ]
+          },
+          {
+            title: "3. Уровни сознания:",
+            desc: "Масштабы осмысления действительности – от мыслей конкретного человека до идей целого народа.",
+            type: "interactive",
+            items: [
+              { text: "индивидуальное", desc: "Уникальный и неповторимый духовный мир конкретной личности, её личные знания, память и переживания." },
+              { text: "общественное", desc: "Совокупность представлений, теорий, настроений и чувств, характерных для большой социальной группы или всего общества в определенную историческую эпоху." }
+            ]
+          },
+          {
+            title: "4. Функции сознания:",
+            desc: "Роль, которую сознание играет в выживании и развитии человека.",
+            type: "interactive",
+            items: [
+              { text: "организует познавательные процессы, память", desc: "Сознание структурирует получаемую информацию, позволяет запоминать прошлый опыт и использовать его в будущем." },
+              { text: "позволяет выстраивать целостную модель внешнего мира", desc: "Формирование в мозге единой, логичной «картины мира», помогающей адекватно оценивать реальность." },
+              { text: "целеполагание, основа преобразовательной деятельности и др.", desc: "Только благодаря сознанию человек может предвидеть последствия своих действий, ставить цели и творчески изменять природу." }
+            ]
+          },
+          {
+            title: "5. Формы общественного сознания:",
+            desc: "Различные способы, с помощью которых общество духовно осваивает и оценивает реальность.",
+            type: "interactive",
+            items: [
+              { text: "научное", desc: "Система объективных, доказательных и логически обоснованных знаний о законах развития природы и социума." },
+              { text: "правовое", desc: "Совокупность взглядов общества на справедливость, законность, права человека и необходимость их защиты государством." },
+              { text: "религиозное", desc: "Мировоззрение, основанное на вере в сверхъестественные силы, определяющие судьбу мира и человека." },
+              { text: "политическое и др.", desc: "Идеи, взгляды и теории, отражающие отношение социальных групп к власти и государственному устройству." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Мировоззрение",
+        titleDesc: "Мировоззрение – это целостная система философских, научных, политических, нравственных и эстетических взглядов, определяющих отношение человека к окружающему миру и выступающих в качестве ориентиров его поведения.",
+        categories: [
+          { 
+            title: "1. Понятие «мировоззрение».", 
+            desc: "Целостное представление о природе, обществе, человеке, находящее выражение в системе ценностей и идеалов личности, социальной группы, общества.", 
+            type: "static" 
+          },
+          {
+            title: "2. Структура мировоззрения:",
+            desc: "Фундаментальные элементы, из которых, словно из кирпичиков, складывается сложный внутренний мир человека.",
+            type: "interactive",
+            items: [
+              { text: "убеждения", desc: "Устойчивые, глубоко укоренившиеся в сознании взгляды, ради которых человек готов активно действовать и отстаивать свою правоту в спорах." },
+              { text: "ценности", desc: "Представления субъекта о том, что для него является святым, правильным и главным в жизни (идеалы добра, свободы, любви, справедливости)." },
+              { text: "знания и др.", desc: "Накопленная объективная или субъективная информация о законах природы, устройстве общества и самом себе." }
+            ]
+          },
+          {
+            title: "3. Уровни мировоззрения:",
+            desc: "Разделение мировоззрения по степени глубины и логической обоснованности осмысления действительности.",
+            type: "interactive",
+            items: [
+              { text: "обыденно-практическое", desc: "Стихийно формирующийся уровень, основанный на личном жизненном опыте, житейской мудрости, приметах и здравом смысле." },
+              { text: "теоретическое", desc: "Высший уровень мировоззрения, который формируется целенаправленно и опирается на строгую науку, логику и философию." }
+            ]
+          },
+          {
+            title: "4. Функции мировоззрения:",
+            desc: "Практическое значение и та польза, которую система взглядов приносит человеку в его повседневной жизни.",
+            type: "interactive",
+            items: [
+              { text: "познавательная", desc: "Помогает человеку накапливать новые знания, осмысливать их и выстраивать в единую, логичную картину устройства мира." },
+              { text: "ценностно-ориентировочная", desc: "Задает систему координат, позволяя человеку легко отличать добро от зла, истинное от ложного, важное от второстепенного." },
+              { text: "практическая и др.", desc: "Выступает непосредственным руководством к действию: определяя методы, которыми человек будет решать проблемы и достигать поставленных целей." }
+            ]
+          },
+          {
+            title: "5. Виды мировоззрения:",
+            desc: "Исторические типы отношения к реальности, сменявшие друг друга или сосуществующие в культуре.",
+            type: "interactive",
+            items: [
+              { text: "мифологическое", desc: "Исторически первый тип: опирается на эмоции, фантазию и мифы, не разделяя человека и природные явления (одушевление природы)." },
+              { text: "религиозное", desc: "Опирается на безусловную веру в божественное начало, наличие сверхъестественных сил, создавших мир и управляющих им." },
+              { text: "научное и др.", desc: "Опирается на доказательства, объективность, рациональность и строго подтвержденные законы природы и общества." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Деятельность человека",
+        titleDesc: "Деятельность – это специфический, присущий исключительно человеку вид активности, направленный на познание, творческое преобразование окружающего мира, общества и самого себя.",
+        categories: [
+          { 
+            title: "1. Понятие деятельности.", 
+            desc: "Специфический вид человеческой активности, направленный на познание и творческое преобразование окружающего мира, включая самого себя и условия своего существования.", 
+            type: "static" 
+          },
+          {
+            title: "2. Структура деятельности:",
+            desc: "Внутренние элементы, из которых обязательно состоит любой полноценный и осознанный акт человеческой деятельности.",
+            type: "interactive",
+            items: [
+              { text: "мотив", desc: "Внутренняя причина, побуждающая человека к действию, неразрывно связанная с необходимостью удовлетворить ту или иную потребность." },
+              { text: "цель", desc: "Осознанный, идеальный образ предвосхищаемого результата (то, чего человек стремится достичь в итоге)." },
+              { text: "средства", desc: "Совокупность инструментов, технологий и методов, применяемых субъектом для успешного достижения поставленной цели." },
+              { text: "результат", desc: "Конечный материальный или духовный итог работы, который на практике может как совпадать с целью, так и расходиться с ней." }
+            ]
+          },
+          {
+            title: "3. Признаки деятельности:",
+            desc: "Фундаментальные черты, отличающие сложную деятельность человека от простого инстинктивного поведения животных.",
+            type: "interactive",
+            items: [
+              { text: "сознательность", desc: "В отличие от пчелы или паука, человек всегда мысленно планирует свои действия, ставит цели и прогнозирует возможные последствия." },
+              { text: "продуктивность", desc: "Деятельность направлена на создание совершенно новых продуктов (материальных или духовных благ), ранее не существовавших в природе." },
+              { text: "орудийный характер и др.", desc: "Человек способен не только использовать найденные предметы, но и целенаправленно создавать сложные, составные орудия труда для преобразования мира." }
+            ]
+          },
+          {
+            title: "4. Основные виды деятельности:",
+            desc: "Четыре базовые (ведущие) формы активности, сопровождающие человека на протяжении всего его жизненного пути.",
+            type: "interactive",
+            items: [
+              { text: "игра", desc: "Свободная, добровольная активность, в которой для человека важен не конечный результат, а получение удовольствия от самого процесса по установленным правилам." },
+              { text: "учение", desc: "Целенаправленный процесс приобретения субъектом новых предметных знаний, социальных навыков и умений (формирует мировоззрение)." },
+              { text: "труд", desc: "Целесообразная активность, требующая усилий и направленная на создание практически полезного продукта для удовлетворения потребностей общества." },
+              { text: "общение", desc: "Процесс установления и развития контактов между людьми, включающий обмен информацией, эмоциями, мыслями и совместную координацию действий." }
+            ]
+          },
+          {
+            title: "5. Основные мотивы деятельности:",
+            desc: "Те внутренние двигатели, которые заставляют человека вставать по утрам и приступать к работе или обучению.",
+            type: "interactive",
+            items: [
+              { text: "потребности", desc: "Переживаемая и осознаваемая нужда человека в том, что необходимо для поддержания его жизни и гармоничного развития." },
+              { text: "интересы", desc: "Целенаправленное отношение человека к определенному объекту, имеющему для него особую значимость или привлекательность." },
+              { text: "убеждения и др.", desc: "Стойкие принципы и идеалы человека, ради утверждения которых он совершает те или иные поступки, даже жертвуя комфортом." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Познавательная деятельность",
+        titleDesc: "Познание – это активный процесс постижения человеком новых фактов, явлений и закономерностей, в результате которого происходит обновление и обогащение знаний о природе, обществе и самом себе.",
+        categories: [
+          { 
+            title: "1. Понятие познания.", 
+            desc: "Процесс постижения действительности, накопления и осмысления данных, полученных в опыте взаимодействия человека с окружающим миром.", 
+            type: "static" 
+          },
+          {
+            title: "2. Уровни познания:",
+            desc: "Два неразрывно связанных этапа, через которые проходит человеческий мозг при получении и обработке информации.",
+            type: "interactive",
+            items: [
+              { text: "чувственное", desc: "Начальный этап: познание осуществляется исключительно через непосредственный контакт рецепторов (зрения, слуха, осязания) с внешними предметами." },
+              { text: "рациональное", desc: "Высший этап: познание осуществляется в отрыве от прямого контакта, с помощью абстрактного мышления, логики и теоретических выкладок." }
+            ]
+          },
+          {
+            title: "3. Формы чувственного познания:",
+            desc: "Как именно мы воспринимаем мир на первом, эмпирическом этапе познания.",
+            type: "interactive",
+            items: [
+              { text: "ощущение", desc: "Самая простая форма: отражение в мозге лишь отдельных свойств и качеств предмета (например, только цвет яблока или только его кислота)." },
+              { text: "восприятие", desc: "Более сложная форма: синтез ощущений в единый, целостный чувственный образ предмета, воздействующего на органы чувств в данный момент." },
+              { text: "представление", desc: "Сохранение и мысленное воспроизведение целостного образа предмета в памяти человека, даже когда сам предмет уже исчез из поля зрения." }
+            ]
+          },
+          {
+            title: "4. Формы рационального познания:",
+            desc: "Логические инструменты, с помощью которых наш разум обрабатывает информацию и делает сложные научные выводы.",
+            type: "interactive",
+            items: [
+              { text: "понятие", desc: "Логическая мысль, фиксирующая самые существенные, отличительные признаки целого класса схожих объектов (например, понятие «социальный институт»)." },
+              { text: "суждение", desc: "Мысль, в которой с помощью понятий утверждается или отрицается наличие у предмета какого-либо признака («студент читает книгу»)." },
+              { text: "умозаключение и др.", desc: "Сложный логический процесс вывода совершенно новой мысли (нового суждения) из анализа нескольких исходных суждений." }
+            ]
+          },
+          {
+            title: "5. Виды познавательной деятельности:",
+            desc: "Разнообразные пути и методы, с помощью которых человечество веками пыталось добраться до истины.",
+            type: "interactive",
+            items: [
+              { text: "научное", desc: "Направлено на выработку объективных, системно организованных и теоретически обоснованных знаний о законах мира." },
+              { text: "религиозное", desc: "Опирается на безусловную веру в божественное откровение и священ texts, не требуя строгих логических доказательств." },
+              { text: "художественное и др.", desc: "Постижение мира не через сухие формулы, а через призму эмоций, творческих переживаний и ярких эстетических образов." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Истина в познавательной деятельности",
+        titleDesc: "Истина – это высшая цель любого познания; знание, которое точно и адекватно отражает познаваемый объект, соответствуя его реальным свойствам и характеристикам.",
+        categories: [
+          { 
+            title: "1. Истина как цель и результат познания.", 
+            desc: "Утверждение (знание), точно и адекватно отражающее действительность, полностью соответствующее объективным свойствам познаваемого предмета.", 
+            type: "static" 
+          },
+          {
+            title: "2. Виды истины:",
+            desc: "Классификация истины в зависимости от глубины, точности и полноты постижения сути изучаемого объекта.",
+            type: "interactive",
+            items: [
+              { text: "абсолютная", desc: "Исчерпывающее, полное, совершенно точное и окончательное знание об объекте, которое ни при каких условиях не может быть опровергнуто в будущем." },
+              { text: "относительная", desc: "Неполное, ограниченное и изменчивое знание, верное лишь для своего времени и уровня развития науки, способное дополняться или уточняться." }
+            ]
+          },
+          {
+            title: "3. Признаки истины:",
+            desc: "Свойства истинного знания, отличающие его от выдумки, фантазии или откровенной лжи.",
+            type: "interactive",
+            items: [
+              { text: "конкретность", desc: "Истина не бывает абстрактной: она всегда связана с четко определенным местом, временем и специфическими обстоятельствами рассматриваемого события." },
+              { text: "историчность", desc: "Зависимость открываемой истины от исторической эпохи, имеющегося в распоряжении ученых оборудования и текущего уровня развития культуры." },
+              { text: "объективность", desc: "Содержание истинного знания зависит только от свойств самого объекта и абсолютно не зависит от пристрастий, желаний и авторитета познающего субъекта." }
+            ]
+          },
+          {
+            title: "4. Критерии истины:",
+            desc: "Надежные инструменты (мерила), позволяющие ученым убедиться, что полученное ими знание является достоверным.",
+            type: "interactive",
+            items: [
+              { text: "практика", desc: "Самый главный и надежный критерий: материальная, преобразующая деятельность людей, в ходе которой проверяются все научные гипотезы (эксперимент, производство)." },
+              { text: "соответствие ранее открытым законам", desc: "Новая теория не должна вступать в неразрешимое противоречие с уже строго доказанными фундаментальными законами физики, математики или логики." },
+              { text: "простота, ясность мысли и др.", desc: "Истинная теория стремится к элегантному, логичному и наиболее простому объяснению сложного явления (принцип «бритвы Оккама»)." }
+            ]
+          },
+          { 
+            title: "5. Заблуждение и ложь в познавательной деятельности.", 
+            desc: "Заблуждение – содержание знания, не соответствующее реальности, но ошибочно принимаемое за истинное. Ложь – сознательное искажение фактов с определенной целью.", 
+            type: "static" 
+          }
+        ]
+      },
+      {
+        title: "Культура, её формы (виды) и функции",
+        titleDesc: "Культура (в широком смысле) – это исторически обусловленный динамический комплекс постоянно обновляющихся во всех сферах общественной жизни форм, принципов, способов и результатов активной творческой деятельности людей.",
+        categories: [
+          { 
+            title: "1. Понятие культуры.", 
+            desc: "Совокупность материальных и духовных объектов, созданных человечеством в процессе исторического развития, освоения и преобразования природы.", 
+            type: "static" 
+          },
+          {
+            title: "2. Функции культуры:",
+            desc: "Колоссальная роль, которую культура играет в поддержании жизнеспособности общества и воспитании новых поколений.",
+            type: "interactive",
+            items: [
+              { text: "познавательная", desc: "Накопление, систематизация и сохранение колоссального объема знаний об устройстве природы, общества и самого человека." },
+              { text: "коммуникативная", desc: "Обеспечение сложного процесса общения людей: культура создает язык, письменность, символы и общепринятые правила диалога." },
+              { text: "передача социального опыта и др.", desc: "Трансляционная функция: сохранение и бережная передача научных достижений и моральных норм от старших поколений к младшим." }
+            ]
+          },
+          {
+            title: "3. Формы культуры:",
+            desc: "Классификация культуры по уровню сложности содержания, коммерческой направленности и особенностям целевой аудитории.",
+            type: "interactive",
+            items: [
+              { text: "народная", desc: "Создается анонимными творцами, отражает менталитет и исторические корни нации. Примеры: былины, эпосы, народные танцы и обряды." },
+              { text: "массовая", desc: "Культура индустриального общества: стандартизирована, коммерциализирована, понятна и доступна абсолютному большинству (поп-музыка, блокбастеры)." },
+              { text: "элитарная", desc: "Сложная, новаторская культура, создаваемая профессиональными творцами для узкого круга подготовленных знатоков и эстетов (артхаус, авангард)." }
+            ]
+          },
+          {
+            title: "4. Признаки народной культуры:",
+            desc: "Специфические черты фольклорного творчества.",
+            type: "interactive",
+            items: [
+              { text: "анонимность", desc: "У произведений нет конкретного, известного истории автора. Автором считается весь народ, коллективный творец." },
+              { text: "ориентация на традиции", desc: "Произведения строго опираются на многовековой опыт, обычаи и архаичные ценности своих предков." },
+              { text: "устная традиция передачи и др.", desc: "Сказки, мифы и предания веками передавались из уст в уста задолго до появления массовой письменности и книгопечатания." }
+            ]
+          },
+          {
+            title: "5. Признаки массовой культуры:",
+            desc: "Специфические черты современной коммерческой поп-культуры.",
+            type: "interactive",
+            items: [
+              { text: "тиражируемость", desc: "Произведения моментально копируются миллионными тиражами (диски, интернет-релизы) с помощью современных технологий." },
+              { text: "коммерческий характер", desc: "Главная цель создания такого искусства – не духовное просвещение масс, а успешная продажа продукта и извлечение финансовой прибыли." },
+              { text: "развлекательный характер и др.", desc: "Простой, стандартизированный сюжет, не требующий от зрителя глубоких интеллектуальных размышлений; цель – досуг и отдых." }
+            ]
+          },
+          {
+            title: "6. Признаки элитарной культуры:",
+            desc: "Специфические черты «высокого» искусства.",
+            type: "interactive",
+            items: [
+              { text: "сложность содержания", desc: "Использование метафор, скрытых смыслов и сложного языка, который невозможно понять без специального предварительного образования." },
+              { text: "ориентация на знатоков", desc: "Произведения создаются для узкого круга критиков и ценителей, поэтому часто не окупаются в прокате (коммерчески невыгодны)." },
+              { text: "авторский характер и др.", desc: "Произведение выступает как способ максимального самовыражения творца, он не подстраивается под вкусы публики и тренды." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Духовная деятельность",
+        titleDesc: "Духовная деятельность – это форма активного отношения человека к окружающему миру, заключающаяся в создании, сохранении, трансляции и потреблении духовных ценностей (идей, знаний, художественных образов).",
+        categories: [
+          { 
+            title: "1. Понятие духовной деятельности.", 
+            desc: "Особый вид активности человека, направленный на создание, сохранение и распределение духовных ценностей, формирование идей и взглядов.", 
+            type: "static" 
+          },
+          {
+            title: "2. Признаки духовной деятельности:",
+            desc: "Отличительные особенности, отделяющие работу духа от создания материальных предметов (заводов или машин).",
+            type: "interactive",
+            items: [
+              { text: "направлена на преобразование сознания", desc: "Главная цель – изменить не внешнюю природную среду, а внутренний мир человека, его взгляды, мораль и воспитание." },
+              { text: "связана с созданием идей, ценностей, образов", desc: "Продукты этой деятельности носят идеальный характер. Картина ценна не холстом и красками, а заложенным в нее смыслом." },
+              { text: "связана с удовлетворением идеальных потребностей и др.", desc: "Она утоляет жажду человека в познании истины, наслаждении красотой и поиске высшего смысла существования." }
+            ]
+          },
+          {
+            title: "3. Виды духовной деятельности:",
+            desc: "Основные формы теоретической и творческой активности.",
+            type: "interactive",
+            items: [
+              { text: "познавательная", desc: "Систематический поиск истины, раскрытие объективных законов развития природы и общества (наука, образование)." },
+              { text: "прогностическая", desc: "Попытка научно предвидеть будущее развитие социальных и природных процессов на основе имеющихся данных." },
+              { text: "ценностно-ориентировочная", desc: "Формирование у людей системы моральных координат, воспитание представлений о добре, зле, долге и совести." }
+            ]
+          },
+          {
+            title: "4. Сферы духовной деятельности:",
+            desc: "Институциональные области, в рамках которых осуществляется духовное производство.",
+            type: "interactive",
+            items: [
+              { text: "наука", desc: "Сфера производства объективных, логически выверенных знаний об устройстве мироздания." },
+              { text: "религия", desc: "Сфера формирования мировоззрения, основанная на вере в сверхъестественные сущности (Бога)." },
+              { text: "искусство и др.", desc: "Сфера творческого и эстетического освоения мира через систему ярких художественных образов." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Мораль и нравственность",
+        titleDesc: "Мораль – это специфический способ регулирования общественной жизни с позиций гуманизма, добра и зла, цель которого – утверждать ценность личности, равенство людей в их стремлении к счастью и достойной жизни.",
+        categories: [
+          { 
+            title: "1. Понятие морали.", 
+            desc: "Специфический способ регулирования общественной жизни с позиций гуманизма, добра и справедливости, цель которого – утверждать ценность личности.", 
+            type: "static" 
+          },
+          {
+            title: "2. Признаки морали:",
+            desc: "Особенности морали как одного из главных видов социальных норм, отличающие её от права или обычаев.",
+            type: "interactive",
+            items: [
+              { text: "опора на совесть и самоконтроль", desc: "Главный регулятор морального поведения находится внутри самого человека; это его чувство долга и ответственности." },
+              { text: "охрана силой общественного мнения", desc: "В отличие от законов, за нарушение морали человека не посадит в тюрьму государство; наказанием служит осуждение или бойкот со стороны общества." },
+              { text: "неформализованность норм и др.", desc: "Моральные правила не записаны в официальных государственных кодексах и Конституции, они передаются через воспитание." }
+            ]
+          },
+          {
+            title: "3. Функции морали:",
+            desc: "Важнейшая роль этических норм в сохранении человеческого общества.",
+            type: "interactive",
+            items: [
+              { text: "регулятивная", desc: "Координация поведения людей во всех сферах жизни (труд, семья, политика), предотвращение конфликтов и утверждение порядка." },
+              { text: "оценочная", desc: "Предоставление человеку четких критериев (добро/зло), с помощью которых он может судить о своих и чужих поступках." },
+              { text: "воспитательная и др.", desc: "Формирование из ребенка полноценной социальной личности, наделенной гуманистическими ценностями и эмпатией." }
+            ]
+          },
+          {
+            title: "4. Моральные категории:",
+            desc: "Фундаментальные, предельно общие понятия этики, отражающие суть морали.",
+            type: "interactive",
+            items: [
+              { text: "добро и зло", desc: "Центральные категории морали, обозначающие всё, что способствует сохранению жизни (добро) и ведет к разрушению (зло)." },
+              { text: "справедливость", desc: "Идеал соразмерности: требование соответствия между деянием и воздаянием, трудом и вознаграждением, преступлением и наказанием." },
+              { text: "честь", desc: "Осознание индивидом своего общественного значения и признание этого значения (уважение) со стороны общества." },
+              { text: "достоинство и др.", desc: "Внутреннее самоуважение личности, осознание своей ценности как человека независимо от социального статуса." }
+            ]
+          },
+          { 
+            title: "5. Нравственность как готовность индивида действовать в соответствии с нормами морали.", 
+            desc: "Нравственность – это внутренняя установка человека, побуждающая его действовать по совести, реальное практическое поведение людей в жизни (в отличие от идеальной морали).", 
+            type: "static" 
+          }
+        ]
+      },
+      {
+        title: "Научное познание мира",
+        titleDesc: "Научное познание – это особый вид познавательной деятельности, направленный на выработку объективных, системно организованных и обоснованных знаний о природе, человеке и обществе.",
+        categories: [
+          { 
+            title: "1. Понятие научного познания.", 
+            desc: "Особый вид познавательной деятельности, направленный на выработку объективных, системно организованных и обоснованных знаний о законах природы, человека и общества.", 
+            type: "static" 
+          },
+          {
+            title: "2. Признаки научного знания:",
+            desc: "Строгие критерии, которым должна соответствовать информация, чтобы считаться «научной» (отличие от мифов и религии).",
+            type: "interactive",
+            items: [
+              { text: "доказательность", desc: "Каждое теоретическое положение или гипотеза должны быть логически или экспериментально обоснованы, наука не приемлет утверждений «на веру»." },
+              { text: "проверяемость", desc: "Любой другой независимый исследователь должен иметь возможность повторить эксперимент и получить точно такие же результаты." },
+              { text: "системность", desc: "Научные знания представляют собой не хаотичный набор фактов, а строгую, взаимосвязанную структуру элементов (понятий, теорий, законов)." },
+              { text: "рациональность и др.", desc: "Опора исключительно на логику, разум и строгий понятийный аппарат, полное исключение эмоций и личных предрассудков ученого." }
+            ]
+          },
+          {
+            title: "3. Уровни научного познания:",
+            desc: "Две неразрывно связанные ступени ведения научной исследовательской работы.",
+            type: "interactive",
+            items: [
+              { text: "эмпирический", desc: "Начальный этап: сбор объективных фактов, проведение реальных измерений и экспериментов, описание наблюдаемых физических процессов." },
+              { text: "теоретический", desc: "Высший этап: анализ собранных данных, выявление скрытых закономерностей, выдвижение гипотез и создание всеобъемлющих теорий." }
+            ]
+          },
+          {
+            title: "4. Методы эмпирического уровня научного познания:",
+            desc: "Практические способы и инструменты получения первичной информации об объекте.",
+            type: "interactive",
+            items: [
+              { text: "эксперимент", desc: "Исследование явления в специально созданных, контролируемых и управляемых условиях (например, в химической лаборатории)." },
+              { text: "наблюдение", desc: "Целенаправленное и организованное восприятие объекта без активного вмешательства в его естественный процесс." },
+              { text: "описание и др.", desc: "Тщательная фиксация собранных в ходе наблюдения или эксперимента данных с помощью схем, таблиц или обычного текста." }
+            ]
+          },
+          {
+            title: "5. Методы теоретического уровня научного познания:",
+            desc: "Логико-математические способы обработки информации в сознании исследователя.",
+            type: "interactive",
+            items: [
+              { text: "формализация", desc: "Отображение сложных свойств объектов в знаковой, символической форме (например, запись химической реакции с помощью формул)." },
+              { text: "идеализация", desc: "Мысленное конструирование понятий об объектах, не существующих в чистом виде в реальности (например, «абсолютно твердое тело» в физике)." },
+              { text: "математизация и др.", desc: "Активное использование математических методов и количественных расчетов для выявления законов." }
+            ]
+          },
+          { 
+            title: "6. Виды наук.", 
+            desc: "Традиционно науки делят на социально-гуманитарные (история, социология), точные и технические (математика, информатика) и естественные (физика, химия).", 
+            type: "static" 
+          }
+        ]
+      },
+      {
+        title: "Наука как социальный институт",
+        titleDesc: "С социологической точки зрения, наука – это не просто набор учебников, а мощнейший социальный институт: система профессиональных организаций, ученых, исследовательских практик и этических норм.",
+        categories: [
+          {
+            title: "1. Признаки науки как социального института:",
+            desc: "Структурные элементы, превращающие процесс познания в строго организованную социальную систему.",
+            type: "interactive",
+            items: [
+              { text: "наличие системы ролей и статусов, социальных норм", desc: "В науке существует строгая иерархия (лаборант, кандидат наук, академик) и профессиональная этика (например, строжайший запрет на плагиат)." },
+              { text: "специализированные методы исследования", desc: "Ученые опираются на сложную систему экспериментального оборудования, обсерватории, коллайдеры и методологию проведения опытов." },
+              { text: "наличие культурных символов и др.", desc: "Дипломы об ученых степенях, профессиональный жаргон, научные журналы и мантии профессоров университетов." }
+            ]
+          },
+          {
+            title: "2. Признаки науки:",
+            desc: "Характеристики, отличающие научные знания от повседневных или религиозных представлений.",
+            type: "interactive",
+            items: [
+              { text: "доказательность", desc: "Ни одно суждение не принимается на веру без строгого логического и фактического обоснования." },
+              { text: "проверяемость и воспроизводимость знаний", desc: "Каждый заявленный в статье результат можно перепроверить в независимой лаборатории." },
+              { text: "особая терминология и др.", desc: "Использование строгого, однозначного понятийного аппарата, исключающего двусмысленность толкования." }
+            ]
+          },
+          {
+            title: "3. Функции науки:",
+            desc: "Колоссальное влияние, которое институт науки оказывает на жизнь современного социума.",
+            type: "interactive",
+            items: [
+              { text: "мировоззренческая", desc: "Наука формирует у людей единую, рациональную и логически выверенную картину устройства мироздания, вытесняя предрассудки." },
+              { text: "познавательная", desc: "Реализует главную цель института – непрерывное добывание новых, объективных знаний о природе и человеке." },
+              { text: "социальная и др.", desc: "Наука всё активнее вмешивается в планирование социальных процессов, помогая бороться с эпидемиями, кризисами и демографическими проблемами." }
+            ]
+          },
+          {
+            title: "4. Виды наук:",
+            desc: "Классификация научных дисциплин в зависимости от предмета их исследования.",
+            type: "interactive",
+            items: [
+              { text: "естественные", desc: "Науки, изучающие объективные законы природы, материи и Вселенной (физика, химия, биология, астрономия)." },
+              { text: "социально-гуманитарные", desc: "Науки, в фокусе которых находится сам человек, его духовный мир и законы развития общества (история, социология, политология, психология)." },
+              { text: "точные и технические", desc: "Дисциплины, оперирующие числами, количественными соотношениями и способами практического конструирования механизмов (математика, информатика, инженерия)." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Искусство как социальный институт",
+        titleDesc: "Искусство – это форма (область) духовной культуры, представляющая собой творческое воспроизведение действительности в художественных образах и специфический социальный институт.",
+        categories: [
+          { 
+            title: "1. Понятие искусства.", 
+            desc: "Специфическая форма общественного сознания и человеческой деятельности, которая представляет собой отражение окружающей действительности в художественных образах.", 
+            type: "static" 
+          },
+          {
+            title: "2. Признаки искусства как социального института:",
+            desc: "Организационные черты, превращающие творчество в систему общественных отношений.",
+            type: "interactive",
+            items: [
+              { text: "наличие системы ролей и статусов", desc: "Общественное разделение труда: существуют профессиональные роли «творец» (художник, актер, писатель) и «потребитель» (зритель, критик)." },
+              { text: "наличие специализированных учреждений", desc: "Искусство функционирует на прочной материальной базе: консерватории, театры, музеи, художественные галереи и издательства." },
+              { text: "наличие культурных символов, ценностей и социальных норм и др.", desc: "Утверждение в обществе эстетических идеалов красоты, наличие жанров, стилей и профессиональной этики творцов." }
+            ]
+          },
+          {
+            title: "3. Функции искусства:",
+            desc: "Значение художественного творчества для психологического и нравственного развития людей.",
+            type: "interactive",
+            items: [
+              { text: "гедонистическая", desc: "Особая функция искусства: оно способно доставлять человеку высшее духовное удовольствие, эстетическую радость от созерцания прекрасного." },
+              { text: "эстетическая", desc: "Формирование у человека хорошего вкуса, способности видеть, ценить и творить красоту в окружающем мире." },
+              { text: "познавательная и др.", desc: "Искусство позволяет глубоко изучать мир, эпоху и психологию людей, но делает это не через формулы, а через эмоциональные художественные образы." }
+            ]
+          },
+          {
+            title: "4. Виды искусства:",
+            desc: "Многообразие форм, в которых творцы воплощают свои эстетические замыслы.",
+            type: "interactive",
+            items: [
+              { text: "временные", desc: "Динамичные виды искусства, где образы разворачиваются во времени, но не имеют видимого пространства (музыка, литература)." },
+              { text: "пространственные", desc: "Пластические виды: образы зафиксированы в материале и не меняются во времени, воспринимаются зрительно (живопись, архитектура, скульптура)." },
+              { text: "пространственно-временные", desc: "Синтетические, зрелищные искусства, сочетающие и пространственное действие, и развитие во времени (театр, кинематограф, балет, цирк)." }
+            ]
+          },
+          { 
+            title: "5. Особенности современного искусства.", 
+            desc: "К чертам современного искусства относят размытие границ между жанрами, использование цифровых и VR-технологий, интерактивность и активное вовлечение зрителя в перфоманс.", 
+            type: "static" 
+          }
+        ]
+      },
+      {
+        title: "Религия как социальный институт",
+        titleDesc: "Религия – это не только личная вера человека в Бога, но и мощный социальный институт, объединяющий миллионы людей в устойчивые общности (церкви) со своими правилами и иерархией.",
+        categories: [
+          {
+            title: "1. Признаки религии как социального института:",
+            desc: "Внешние, организационные элементы, структурирующие религиозную жизнь общества.",
+            type: "interactive",
+            items: [
+              { text: "наличие системы ролей и статусов", desc: "Строгое разделение общины: существует профессиональное духовенство (священники, имамы, монахи) и рядовые верующие (миряне, прихожане)." },
+              { text: "наличие учреждений", desc: "Религия обладает колоссальной материальной базой и собственностью: храмы, мечети, синагоги, монастыри и духовные академии." },
+              { text: "наличие культурных символов и др.", desc: "Священные предметы и знаки, концентрирующие смысл веры (православный крест, исламский полумесяц, священные тексты, иконы)." }
+            ]
+          },
+          {
+            title: "2. Функции религии:",
+            desc: "Роль религии в поддержании психического здоровья человека и стабильности всего социума.",
+            type: "interactive",
+            items: [
+              { text: "компенсаторная", desc: "Психологическая помощь: религия снимает стресс, дает человеку утешение, надежду и опору в самых безнадежных и тяжелых жизненных ситуациях." },
+              { text: "мировоззренческая", desc: "Религия отвечает на главные философские вопросы человечества: как был создан этот мир, в чем смысл жизни и что нас ждет после смерти." },
+              { text: "регулятивная и др.", desc: "Религия жестко управляет поведением людей, устанавливая систему моральных запретов и заповедей (например, «не убий», «не укради»)." }
+            ]
+          },
+          {
+            title: "3. Виды религий по распространённости:",
+            desc: "Классификация религий в зависимости от того, на какую территорию и на какие народы они влияют.",
+            type: "interactive",
+            items: [
+              { text: "национально-государственные", desc: "Религии, составляющие основу культуры только одного конкретного народа или нации (например, иудаизм у евреев, синтоизм в Японии, индуизм в Индии)." },
+              { text: "мировые", desc: "Универсальные религии, вышедшие за национальные рамки; они открыты абсолютно для всех людей независимо от их расы, языка и гражданства." }
+            ]
+          },
+          {
+            title: "4. Мировые религии:",
+            desc: "Три великие религии, оказавшие колоссальное влияние на ход мировой истории.",
+            type: "interactive",
+            items: [
+              { text: "христианство", desc: "Самая массовая мировая религия (более 2 млрд приверженцев), базирующаяся на учении Иисуса Христа и тексте Библии." },
+              { text: "буддизм", desc: "Древнейшая из мировых религий (возникла в Древней Индии в VI в. до н.э.), проповедующая путь к просветлению (нирване) и отказ от земных желаний." },
+              { text: "ислам", desc: "Самая молодая (возникла в Аравии в VII веке) и быстрорастущая мировая религия, основанная на покорности Единому Богу (Аллаху) и учении пророка Мухаммеда." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Образование как социальный институт",
+        titleDesc: "Образование – это целенаправленный процесс получения и передачи знаний, умений и навыков, а также важнейший институт воспитания и социализации личности в интересах государства.",
+        categories: [
+          { 
+            title: "1. Понятие образования.", 
+            desc: "Единый целенаправленный процесс воспитания и обучения, являющийся общественно значимым благом и осуществляемый в интересах человека, семьи, общества и государства.", 
+            type: "static" 
+          },
+          {
+            title: "2. Признаки образования как социального института:",
+            desc: "Структурные компоненты, обеспечивающие непрерывность процесса обучения в масштабах всей страны.",
+            type: "interactive",
+            items: [
+              { text: "наличие системы ролей и статусов", desc: "Система включает четкое разделение функций: ученики, студенты, преподаватели, директора школ, профессора и министры просвещения." },
+              { text: "наличие учреждений", desc: "Масштабная сеть организаций: детские сады, общеобразовательные школы, колледжи, университеты и академии наук." },
+              { text: "наличие культурных символов и др.", desc: "Традиции и атрибуты, сопровождающие процесс (дипломы, аттестаты, школьные звонки, гимн университета, студенческие билеты)." }
+            ]
+          },
+          {
+            title: "3. Функции образования:",
+            desc: "Значение системы образования для экономического могущества государства и развития общества.",
+            type: "interactive",
+            items: [
+              { text: "социализация индивидов, передача социокультурного опыта", desc: "Школа не просто учит физике, она прививает ребенку правила поведения в обществе, нормы морали, патриотизм и национальные традиции." },
+              { text: "формирование профессиональной структуры", desc: "Главная экономическая функция: подготовка квалифицированных кадров (инженеров, врачей, программистов), без которых остановится экономика." },
+              { text: "развитие личности и др.", desc: "Раскрытие индивидуальных творческих, научных и спортивных задатков каждого отдельного человека (кружки, олимпиады, секции)." }
+            ]
+          },
+          {
+            title: "4. Тенденции в развитии современного образования:",
+            desc: "Мировые тренды, меняющие облик традиционной школы в XXI веке.",
+            type: "interactive",
+            items: [
+              { text: "гуманитаризация", desc: "Усиление внимания общества к изучению гуманитарных и общественных дисциплин (истории, иностранных языков, экономики, права)." },
+              { text: "интернационализация", desc: "Сближение, интеграция образовательных систем разных стран (создание единых стандартов, взаимное признание дипломов, обмен студентами)." },
+              { text: "гуманизация и др.", desc: "Главный тренд: приоритетное внимание к здоровью ученика, его личным интересам, внедрение индивидуальных планов и инклюзивного образования (для детей с ОВЗ)." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Проблема общественного прогресса",
+        titleDesc: "Общественный прогресс – это направление развития общества от низшего к высшему, от менее совершенного к более совершенному. Однако этот процесс далеко не всегда однозначно позитивен.",
+        categories: [
+          { 
+            title: "1. Понятие общественного прогресса.", 
+            desc: "Направление развития общества, для которого характерен переход от низших и простых форм организации к более высоким и сложным.", 
+            type: "static" 
+          },
+          {
+            title: "2. Особенности прогресса:",
+            desc: "Сложности и философские парадоксы исторического развития человечества.",
+            type: "interactive",
+            items: [
+              { text: "относительность", desc: "Прогресс не универсален: его легко измерить в технике (скорость интернета растет), но абсолютно невозможно измерить в искусстве, морали или религии." },
+              { text: "противоречивость", desc: "Достижения в одной области неизбежно ведут к проблемам в другой. Гениальное открытие атомной энергии привело к созданию ядерного оружия." },
+              { text: "переход от менее совершенного к более совершенному", desc: "Сущностная черта: исторический вектор всегда направлен на усложнение социальных структур и повышение качества жизни (несмотря на временные откаты)." }
+            ]
+          },
+          {
+            title: "3. Проявления противоречивости общественного прогресса:",
+            desc: "Конкретные примеры того, что развитие общества – это сложный и болезненный процесс.",
+            type: "interactive",
+            items: [
+              { text: "может затрагивать не все сферы общественной жизни", desc: "Бурный скачок в развитии экономики и потребления часто происходит на фоне глубокого нравственного и духовного кризиса в обществе." },
+              { text: "неодинаковая скорость протекания в разных сферах", desc: "Технологии развиваются стремительно (новые смартфоны каждый год), а нормы морали и политические институты меняются веками." },
+              { text: "прогресс в одних сферах может сопровождаться регрессом в других", desc: "Мощное развитие промышленности (прогресс) привело к глобальному экологическому кризису и гибели тысяч видов животных (регресс)." }
+            ]
+          },
+          {
+            title: "4. Критерии прогресса:",
+            desc: "Объективные мерила, по которым ученые могут точно сказать, стала ли эпоха более передовой.",
+            type: "interactive",
+            items: [
+              { text: "развитие науки и техники", desc: "Один из самых очевидных критериев: рост автоматизации, внедрение робототехники и уровень информатизации общества." },
+              { text: "развитие производительных сил", desc: "Способность экономики производить всё больше качественных товаров, удовлетворяющих растущие материальные потребности населения." },
+              { text: "степень свободы личности и др.", desc: "Высший (гуманистический) критерий: расширение прав человека, защита его достоинства, рост продолжительности и качества жизни." }
+            ]
+          },
+          { 
+            title: "5. Проблема поиска универсального критерия прогресса.", 
+            desc: "В науке до сих пор идут дискуссии: можно ли найти единое мерило развития? Большинство ученых склоняется к гуманистическому критерию (степень свободы и защиты личности).", 
+            type: "static" 
+          }
+        ]
+      },
+      {
+        title: "Роль потребностей в деятельности человека",
+        titleDesc: "Потребность – это переживаемая и осознаваемая человеком нужда в том, что необходимо для поддержания его организма и развития личности. Именно потребности заставляют общество трудиться и созидать.",
+        categories: [
+          { 
+            title: "1. Понятие потребностей.", 
+            desc: "Переживаемая и осознаваемая человеком нужда в том, что необходимо для поддержания его организма и развития личности.", 
+            type: "static" 
+          },
+          {
+            title: "2. Виды потребностей:",
+            desc: "Классическая иерархия нужд человека (в том числе по пирамиде А. Маслоу).",
+            type: "interactive",
+            items: [
+              { text: "биологические", desc: "Естественные, физиологические, врожденные нужды организма, без удовлетворения которых человек погибнет (пища, вода, воздух, сон, тепло)." },
+              { text: "социальные", desc: "Нужды, возникающие только при жизни в обществе: потребность в общении, дружбе, совместном труде, общественном признании и уважении." },
+              { text: "духовные", desc: "Идеальные, высшие потребности личности: жажда познания окружающего мира, самореализация, создание эстетических ценностей, поиск смысла жизни." }
+            ]
+          },
+          {
+            title: "3. Особенности потребностей человека:",
+            desc: "Характеристики, описывающие природу возникновения желаний.",
+            type: "interactive",
+            items: [
+              { text: "являются мотивами к его деятельности", desc: "Именно неудовлетворенная потребность выступает главным внутренним стимулом, заставляющим человека преодолевать лень и начинать действовать." },
+              { text: "могут изменяться в зависимости от ситуации", desc: "Потребности безграничны и динамичны: по мере взросления человека или развития цивилизации старые потребности исчезают, а новые, более сложные, появляются." },
+              { text: "предметная направленность и др.", desc: "Потребность никогда не бывает «вообще», она всегда направлена на конкретный объект: мы хотим не просто «есть», а нуждаемся в конкретном продукте." }
+            ]
+          },
+          {
+            title: "4. Функции потребностей:",
+            desc: "Роль, которую эти внутренние сигналы играют в психике человека.",
+            type: "interactive",
+            items: [
+              { text: "сигнализируют о возникновении дефицитного состояния", desc: "Потребность (в виде чувства голода или скуки) сообщает мозгу, что организму или психике не хватает важных для гармонии ресурсов." },
+              { text: "побуждение к определённой деятельности", desc: "Трансформируясь в осознанный мотив, потребность формирует цель и запускает моторную активность человека по добыче нужного блага." },
+              { text: "познание качеств предмета в ходе потребления и др.", desc: "Удовлетворяя свою потребность, человек изучает свойства предмета и накапливает опыт для будущих действий." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Способности индивида",
+        titleDesc: "Способности – это индивидуально-психологические особенности человека, которые являются условием успешного выполнения какой-либо деятельности и определяют скорость овладения новыми знаниями.",
+        categories: [
+          { 
+            title: "1. Понятие способностей.", 
+            desc: "Индивидуально-психологические особенности человека, которые являются условием успешного осуществления данной деятельности и динамики овладения знаниями и умениями.", 
+            type: "static" 
+          },
+          {
+            title: "2. Виды способностей:",
+            desc: "Классификация способностей в зависимости от широты их применения.",
+            type: "interactive",
+            items: [
+              { text: "общие", desc: "Фундаментальные свойства психики, помогающие достичь успеха в любой интеллектуальной деятельности: память, внимание, развитая речь, наблюдательность." },
+              { text: "специальные", desc: "Узконаправленные таланты, позволяющие достигать высоких результатов только в конкретной сфере: музыкальный слух, математическая логика, спортивные данные." }
+            ]
+          },
+          {
+            title: "3. Факторы формирования способностей:",
+            desc: "Что именно влияет на то, вырастет ли из ребенка гений или рядовой специалист.",
+            type: "interactive",
+            items: [
+              { text: "интересы и склонности индивида", desc: "Искреннее внутреннее желание человека заниматься именно этим делом, его целеустремленность и готовность преодолевать трудности." },
+              { text: "наследственность", desc: "Биологический фундамент: врожденные анатомо-физиологические особенности нервной системы и строения тела (задатки)." },
+              { text: "влияние социального окружения и др.", desc: "Наличие в обществе хороших школ, кружков, опытных педагогов и поддерживающей семьи, без которых любой природный дар может угаснуть." }
+            ]
+          },
+          {
+            title: "4. Особенности способностей:",
+            desc: "Закономерности развития человеческих талантов.",
+            type: "interactive",
+            items: [
+              { text: "развиваются только в ходе деятельности", desc: "Ни одна способность не сформируется сама по себе: чтобы стать художником, нужно упорно рисовать; чтобы стать спортсменом – тяжело тренироваться." },
+              { text: "формируются на основе задатков", desc: "Талант не берется из пустоты, он всегда опирается на природные, биологически обусловленные предпосылки организма (например, строение голосовых связок)." },
+              { text: "компенсированность при утрате и др.", desc: "Если человек теряет или не имеет одной способности (например, зрения), его мозг может невероятно сильно развить другую способность (абсолютный слух)." }
+            ]
+          },
+          {
+            title: "5. Уровни развития способностей:",
+            desc: "Ступени эволюции таланта от природной формы до исторического величия.",
+            type: "interactive",
+            items: [
+              { text: "задатки", desc: "Врожденные анатомические и физиологические особенности строения организма, составляющие природную основу развития способностей." },
+              { text: "одарённость", desc: "Такое сочетание способностей, которое позволяет человеку успешно, быстро и легко выполнять сложную деятельность, опережая сверстников." },
+              { text: "талант и др.", desc: "Выдающийся уровень развития, при котором человек способен создавать совершенно новые, оригинальные произведения и совершать крупные научные открытия." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Интересы как мотивы деятельности",
+        titleDesc: "Интерес – это целенаправленное отношение человека к какому-либо объекту его потребности, которое имеет эмоциональную окраску и заставляет концентрировать на нем свое внимание.",
+        categories: [
+          { 
+            title: "1. Понятие интересов.", 
+            desc: "Целенаправленное отношение человека к какому-либо объекту его потребности, которое имеет эмоциональную окраску и привлекает повышенное внимание.", 
+            type: "static" 
+          },
+          {
+            title: "2. Виды мотивов деятельности:",
+            desc: "Внутренние стимулы, образующие сложную структуру побуждения человека к действию.",
+            type: "interactive",
+            items: [
+              { text: "потребности", desc: "Глубинные осознаваемые и неосознаваемые нужды организма и социальной сущности человека." },
+              { text: "социальные установки", desc: "Укоренившаяся в человеке предрасположенность определенным образом реагировать на явления и людей, навязанная воспитанием в социуме." },
+              { text: "влечения", desc: "Слабо осознанные или полностью бессознательные психические импульсы, требующие немедленного удовлетворения." },
+              { text: "интересы и др.", desc: "Осознанная, устойчивая направленность личности на объекты, связанные с удовлетворением её потребностей." }
+            ]
+          },
+          {
+            title: "3. Особенности интересов:",
+            desc: "Специфика формирования и проявления человеческого интереса в обществе.",
+            type: "interactive",
+            items: [
+              { text: "направлены на условия, делающие доступными предметы удовлетворения потребности", desc: "Интерес вызывает не сама пища (потребность), а хорошая работа и высокая зарплата (условие), позволяющие эту пищу регулярно покупать." },
+              { text: "зависят от положения индивидов, социальных групп в обществе", desc: "Интересы богатого банкира и простого рабочего на заводе неизбежно будут различаться из-за разного уровня их дохода и социального статуса." },
+              { text: "являются побудительными стимулами к различной деятельности и др.", desc: "Именно интерес (например, к науке или искусству) заставляет человека посвящать свободное время самообразованию и творчеству." }
+            ]
+          },
+          {
+            title: "4. Виды интересов:",
+            desc: "Классификация интересов по субъекту (носителю).",
+            type: "interactive",
+            items: [
+              { text: "индивидуальные", desc: "Интересы конкретного человека, связанные с его уникальными хобби, развитием карьеры и личным комфортом." },
+              { text: "групповые", desc: "Солидарные интересы определенных социальных классов, наций или профессиональных союзов (например, интерес врачей в повышении зарплат)." },
+              { text: "общественные", desc: "Глобальные интересы всего населения государства, такие как обеспечение мира, экологической безопасности и устойчивого экономического роста." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Особенности социального познания",
+        titleDesc: "Социальное познание – это процесс приобретения и развития знаний о человеке и обществе, обладающий огромной спецификой по сравнению с изучением неживой природы.",
+        categories: [
+          { 
+            title: "1. Понятие социального познания.", 
+            desc: "Процесс приобретения и развития знаний о человеке и обществе, в котором субъект и объект познания совпадают.", 
+            type: "static" 
+          },
+          {
+            title: "2. Объекты социального познания:",
+            desc: "То, на что направлено внимание социологов, историков и политологов.",
+            type: "interactive",
+            items: [
+              { text: "поведение индивидов, групп, общества в целом", desc: "Изучение мотивации людей во время выборов, массовых забастовок, революций или ежедневного потребительского поведения." },
+              { text: "результаты материальной деятельности", desc: "Анализ уровня технического развития цивилизаций через изучение орудий труда, архитектурных сооружений и археологических находок." },
+              { text: "результаты духовной деятельности и др.", desc: "Изучение законов, религии, литературных памятников, живописи и других культурных кодов различных эпох." }
+            ]
+          },
+          {
+            title: "3. Что отличает социальное познание от других видов познания?",
+            desc: "Фундаментальные трудности и ограничения в работе ученого-гуманитария.",
+            type: "interactive",
+            items: [
+              { text: "результаты познания относительны из-за сложности, динамичности общества", desc: "Общество меняется каждую секунду; закон, верный для экономики США в XIX веке, может совершенно не работать в современной Африке." },
+              { text: "совпадение субъекта и объекта познания", desc: "Парадокс социологии: общество (человек) изучает само себя. Это неизбежно лишает ученого абсолютной беспристрастности, так как он сам является частью системы." },
+              { text: "ограничены возможности проведения экспериментов и др.", desc: "В отличие от физики, в истории нельзя «переиграть» Великую Французскую революцию в лаборатории; социальные эксперименты над людьми ограничены жесткими нормами этики." }
+            ]
+          },
+          {
+            title: "4. Виды социальных наук:",
+            desc: "Научные дисциплины, разделяющие изучение социума на предметные области.",
+            type: "interactive",
+            items: [
+              { text: "политология", desc: "Наука о структуре, распределении и функционировании государственной власти, политических институтах и процессах." },
+              { text: "социология", desc: "Наука о структуре общества, закономерностях массового поведения людей, социальных группах и социальном неравенстве." },
+              { text: "история и др.", desc: "Наука о развитии человеческого общества в прошлом, изучающая события в их строгой хронологической последовательности." }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Проблема познаваемости мира",
+        titleDesc: "Фундаментальный философский (гносеологический) вопрос о том, способен ли человеческий разум в принципе постичь объективную реальность такой, какая она есть на самом деле.",
+        categories: [
+          { 
+            title: "1. Понятие «познание».", 
+            desc: "Активное отражение объективной реальности в сознании человека, процесс постижения им новых фактов, явлений и законов действительности.", 
+            type: "static" 
+          },
+          {
+            title: "2. Подходы к познаваемости мира:",
+            desc: "Три главных философских лагеря, дающих разные ответы на вопрос «Познаваем ли мир?».",
+            type: "interactive",
+            items: [
+              { text: "агностицизм", desc: "Пессимистическое философское направление, полностью или частично отрицающее принципиальную возможность познания объективной сущности вещей." },
+              { text: "скептицизм", desc: "Направление, не отрицающее познание полностью, но призывающее подвергать жесткому сомнению абсолютную истинность любых полученных знаний." },
+              { text: "оптимизм", desc: "Гносеологический оптимизм: твердое убеждение в том, что мир принципиально познаваем, и человеческий разум рано или поздно раскроет все тайны Вселенной." }
+            ]
+          },
+          {
+            title: "3. Теории познания:",
+            desc: "Философский спор о том, что именно является главным источником достоверных знаний.",
+            type: "interactive",
+            items: [
+              { text: "рационализм", desc: "Теория, утверждающая, что главным источником и критерием истины является исключительно человеческий разум, абстрактное мышление и железная логика." },
+              { text: "эмпиризм", desc: "Теория, утверждающая, что всё знание выводится только из практического, чувственного опыта и экспериментов (в разуме нет того, чего раньше не было в чувствах)." }
+            ]
+          },
+          {
+            title: "4. Виды познания:",
+            desc: "Сферы человеческой культуры, предлагающие разные пути постижения реальности.",
+            type: "interactive",
+            items: [
+              { text: "научное", desc: "Строгое, объективное, системно организованное познание, требующее обязательных доказательств и проверяемости фактов." },
+              { text: "религиозное", desc: "Постижение мира через безусловную веру в божественное откровение, чудеса и авторитет священных текстов." },
+              { text: "художественное др.", desc: "Отражение реальности через призму эмоций создателя, формирование ярких, эстетических художественных образов (в живописи, литературе)." }
+            ]
+          },
+          {
+            title: "5. Уровни познания:",
+            desc: "Ступени обработки информации человеком.",
+            type: "interactive",
+            items: [
+              { text: "чувственное", desc: "Контакт с миром с помощью зрения, слуха, осязания, обоняния и вкуса. Дает информацию только о внешних свойствах предмета." },
+              { text: "рациональное", desc: "Осмысление полученных данных с помощью мозга. Раскрывает внутреннюю суть явлений, недоступную органам чувств." }
+            ]
+          },
+          { 
+            title: "6. Истина, заблуждение, ложь как результаты познания.", 
+            desc: "Истина – адекватное отражение объекта. Заблуждение – ненамеренное искажение реальности, принимаемое за истину. Ложь – сознательное искажение фактов.", 
+            type: "static" 
+          }
+        ]
+      },
+      {
+        title: "Общение как вид деятельности",
+        titleDesc: "Общение – это сложный многоплановый процесс установления и развития контактов между людьми (и группами), порождаемый потребностями совместной деятельности.",
+        categories: [
+          { 
+            title: "1. Понятие общения.", 
+            desc: "Сложный многоплановый процесс установления и развития контактов между людьми, порождаемый потребностями совместной деятельности и обмена информацией.", 
+            type: "static" 
+          },
+          {
+            title: "2. Структура общения как вида деятельности :",
+            desc: "Компоненты, образующие любой полноценный акт коммуникации между людьми.",
+            type: "interactive",
+            items: [
+              { text: "мотивы общения", desc: "Внутренние стимулы: глубокая потребность человека поделиться своими переживаниями, получить совет или организовать совместную работу." },
+              { text: "цели общения", desc: "Предвосхищаемый результат: передача опыта, приобретение новых полезных связей, обучение другого человека или эмоциональная разрядка." },
+              { text: "средства общения и др.", desc: "Инструменты коммуникации: устная речь, письменный текст, современные мессенджеры, а также язык тела (жесты)." }
+            ]
+          },
+          {
+            title: "3. Виды общения в зависимости от используемых средств:",
+            desc: "Как именно мы можем транслировать информацию собеседнику.",
+            type: "interactive",
+            items: [
+              { text: "вербальное (знаковое)", desc: "Основной вид человеческого общения: передача смыслов с помощью естественного звукового языка (устной или письменной речи)." },
+              { text: "невербальное", desc: "Общение без использования слов: считывание настроения собеседника через его мимику, позы, жесты, дистанцию и визуальный контакт." }
+            ]
+          },
+          {
+            title: "4. Функции общения:",
+            desc: "Роль, которую общение играет в выживании общества и развитии отдельной личности.",
+            type: "interactive",
+            items: [
+              { text: "информационная", desc: "Простой прием и передача огромных массивов сведений, знаний и новостей от одного человека к другому." },
+              { text: "координационная", desc: "Взаимное согласование усилий и действий людей для успешного выполнения совместного физического или интеллектуального труда." },
+              { text: "контактная и др.", desc: "Установление психологического, эмоционального контакта, создание атмосферы доверия, эмпатии и духовного единения." }
+            ]
+          },
+          { 
+            title: "5. Особенности общения в информационном обществе.", 
+            desc: "Переход коммуникации в виртуальную среду (социальные сети, мессенджеры), стирание географических границ, анонимность и колоссальное ускорение обмена информацией.", 
+            type: "static" 
+          }
+        ]
+      },
+      {
+        title: "Образование в Российской Федерации",
+        titleDesc: "Образование в РФ – это единый целенаправленный процесс воспитания и обучения, являющийся общественно значимым благом и осуществляемый в интересах человека, семьи, общества и государства.",
+        categories: [
+          {
+            title: "1. Что включает система образования РФ?",
+            desc: "Нормативная и структурная база, на которой держится весь процесс обучения в стране.",
+            type: "interactive",
+            items: [
+              { text: "образовательные стандарты", desc: "ФГОС (Федеральные государственные образовательные стандарты) – строгие требования к программам, качеству знаний и условиям обучения по всей стране." },
+              { text: "образовательные организации", desc: "Материальная основа системы: детские сады, школы-интернаты, лицеи, колледжи, институты, университеты и академии наук." },
+              { text: "органы управления образованием и др.", desc: "Государственный аппарат контроля: Министерство просвещения, Министерство науки и высшего образования, региональные департаменты." }
+            ]
+          },
+          {
+            title: "2. Структура образования в РФ:",
+            desc: "Четыре законодательно закрепленных блока образовательного процесса (согласно закону «Об образовании в РФ»).",
+            type: "interactive",
+            items: [
+              { text: "общее образование", desc: "Обязательная база: включает дошкольное (детский сад), начальное (1-4 классы), основное общее (5-9 классы) и среднее общее (10-11 классы)." },
+              { text: "профессиональное образование", desc: "Подготовка специалистов для экономики: среднее профессиональное (колледжи) и высшее (бакалавриат, специалитет, магистратура, аспирантура)." },
+              { text: "дополнительное образование", desc: "Удовлетворение индивидуальных творческих потребностей вне рамок основных программ: музыкальные школы, спортивные секции, курсы." },
+              { text: "профессиональное обучение", desc: "Ускоренное приобретение лицом компетенций для выполнения работы по конкретным рабочим профессиям без изменения уровня образования." }
+            ]
+          },
+          {
+            title: "3. Принципы образовательной политики в РФ:",
+            desc: "Фундаментальные гарантии и правила, на которых государство строит систему обучения.",
+            type: "interactive",
+            items: [
+              { text: "единство обучения и воспитания", desc: "Государство подчеркивает, что школа должна не только давать сухие знания (формулы), но и формировать у ребенка гражданскую позицию и мораль." },
+              { text: "гуманистический характер образования", desc: "Абсолютный приоритет жизни и здоровья ученика, уважение его прав, свободное развитие личности и недопустимость насилия в школах." },
+              { text: "светский характер образования и др.", desc: "Государственные и муниципальные школы полностью отделены от церкви: религиозные догматы не могут заменять научную программу." }
+            ]
+          },
+          { 
+            title: "4. Права и обязанности обучающихся и их родителей (законных представителей).", 
+            desc: "Обучающиеся имеют право на уважение человеческого достоинства, свободу совести, информации и свободное выражение собственных взглядов, но обязаны добросовестно осваивать программу и беречь имущество школы.", 
+            type: "static" 
+          }
+        ]
+      },
+      {
+        title: "Экологические проблемы современности",
+        titleDesc: "Глобальный экологический кризис (ГЭК) – это состояние глубокого, критического нарушения равновесия в отношениях между человеческим обществом и природой, угрожающее существованию биосферы Земли.",
+        categories: [
+          { 
+            title: "1. Понятие ГЭК*.", 
+            desc: "Глобальный экологический кризис – это состояние глубокого, критического нарушения равновесия в природе, угрожающее существованию биосферы Земли и самого человека.", 
+            type: "static" 
+          },
+          {
+            title: "2. Причины возникновения ГЭК:",
+            desc: "Объективные исторические и экономические процессы, спровоцировавшие катастрофическое давление на биосферу во второй половине XX века.",
+            type: "interactive",
+            items: [
+              { text: "рост численности населения Земли", desc: "Демографический взрыв (перенаселение в развивающихся странах) требует колоссального увеличения добычи продовольствия, воды и ресурсов, истощая планету." },
+              { text: "интенсификация хозяйственной деятельности людей", desc: "Появление тяжелой промышленности: огромные заводы, металлургические комбинаты и ТЭЦ ежедневно отравляют окружающую среду отходами." },
+              { text: "нерациональное использование ограниченных ресурсов и др.", desc: "Варварское, потребительское отношение к природе ради сверхприбыли корпораций: массовая вырубка уникальных лесов, исчерпание залежей нефти и пресной воды." }
+            ]
+          },
+          {
+            title: "3. Виды ГЭК:",
+            desc: "Конкретные, устрашающие проявления разрушения природы в различных оболочках Земли.",
+            type: "interactive",
+            items: [
+              { text: "сокращение биоразнообразия", desc: "Массовое, безвозвратное вымирание редчайших видов животных и растений в результате разрушения их естественных мест обитания человеком." },
+              { text: "загрязнение Мирового океана", desc: "Катастрофические разливы нефти из танкеров, сброс токсичных радиоактивных отходов и образование гигантских мусорных (пластиковых) пятен в океане." },
+              { text: "загрязнение атмосферы и др.", desc: "Ежедневные выбросы промышленного дыма и выхлопных газов автомобилей, приводящие к парниковому эффекту, глобальному потеплению и разрушению озонового слоя." }
+            ]
+          },
+          {
+            title: "4. Способы решения ГЭК:",
+            desc: "Единственно возможный комплекс мировых мер для предотвращения полного экологического коллапса.",
+            type: "interactive",
+            items: [
+              { text: "формирование в обществе бережного и ответственного отношения к природе", desc: "Масштабное экологическое просвещение, смена потребительской парадигмы на экологическое сознание начиная с детского сада." },
+              { text: "ужесточение законодательства в сфере охраны окружающей среды", desc: "Введение государствами гигантских, разорительных штрафов и квот для предприятий, превышающих нормы вредных выбросов." },
+              { text: "переход на ресурсосберегающие технологии и др.", desc: "Финансирование науки для массового перехода на возобновляемую «зеленую» энергетику (солнце, ветер), безотходное производство и глубокую вторичную переработку мусора." }
+            ]
+          },
+          { 
+            title: "5. Связь ГЭК с другими глобальными проблемами.", 
+            desc: "Экологический кризис тесно переплетен с другими угрозами: например, демографический взрыв ускоряет истощение природы, что, в свою очередь, обостряет нехватку пресной воды и продовольствия на Земле.", 
+            type: "static" 
+          }
+        ]
+      },
+      {
+        title: "Духовные ценности как компонент духовной культуры",
+        titleDesc: "Духовные ценности – это идеальные представления общества об истине, справедливости, добре, красоте и высшем смысле человеческой жизни, которые служат внутренним ориентиром для поведения людей.",
+        categories: [
+          { 
+            title: "1. Понятие «духовные ценности».", 
+            desc: "Идеальные представления общества об истине, справедливости, добре, красоте, которые служат внутренним ориентиром для поведения и духовного развития людей.", 
+            type: "static" 
+          },
+          {
+            title: "2. Признаки духовных ценностей:",
+            desc: "Уникальные черты, радикально отличающие духовные идеалы от обычных материальных, физических вещей (например, от машины или еды).",
+            type: "interactive",
+            items: [
+              { text: "особая долговечность (по сравнению с материальными), неисчерпаемость", desc: "В отличие от съеденного яблока, стихотворение Пушкина или теорема Пифагора не исчезают при потреблении; их могут использовать миллионы людей бесконечно." },
+              { text: "существуют в сознании индивидов, групп, общества", desc: "Они имеют идеальный, невещественный характер. Справедливость нельзя потрогать руками, она живет исключительно в мыслях и верованиях людей." },
+              { text: "общественный характер", desc: "Чтобы идея стала настоящей ценностью, она должна разделяться и признаваться не одним чудаком, а огромной социальной группой или нацией." },
+              { text: "выражаются посредством знаков, символов и др.", desc: "Поскольку идеалы невидимы, для их передачи используются материальные носители: слова, ноты, краски на холсте или символы веры." }
+            ]
+          },
+          {
+            title: "3. Сферы духовного производства:",
+            desc: "Особые социальные институты, в рамках которых профессионалы (и любители) целенаправленно создают новые духовные идеалы.",
+            type: "interactive",
+            items: [
+              { text: "наука", desc: "Сфера, занимающаяся производством объективных, логически выверенных знаний об устройстве мироздания (ценность истины)." },
+              { text: "религия", desc: "Сфера, производящая догматы, верования и заповеди на основе веры в сверхъестественные сущности (ценность спасения и святости)." },
+              { text: "искусство и др.", desc: "Сфера творческого и эстетического освоения мира через систему ярких художественных образов (ценность красоты и гармонии)." }
+            ]
+          },
+          {
+            title: "4. Виды духовных ценностей:",
+            desc: "Классификация высших ориентиров человечества в зависимости от сферы общественной жизни, которую они регулируют.",
+            type: "interactive",
+            items: [
+              { text: "нравственные", desc: "Этические категории, регулирующие отношения между людьми с позиций гуманизма: добро, зло, совесть, гражданский долг, честь и человеческое достоинство." },
+              { text: "эстетические", desc: "Категории, определяющие отношение человека к искусству и природе: представления о красоте, гармонии, уродстве, трагическом и комическом." },
+              { text: "религиозные и др.", desc: "Категории, связанные с верой в Бога: святость, благодать, грех, спасение души и соблюдение божественных заповедей." }
+            ]
+          }
+        ]
+      }
+    ];
+
+    // --- ЛОГИКА ИНТЕРФЕЙСА ---
+    const htmlEl = document.documentElement;
+    const splashScreen = document.getElementById('splash-screen');
+    const appUi = document.getElementById('app-ui');
+    const btnStart = document.getElementById('btn-start');
+    const btnTheme = document.getElementById('btn-theme');
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    
+    // Кнопки навигации
+    const btnSkipPlan = document.getElementById('btn-skip-plan');
+    const btnPrevPlan = document.getElementById('btn-prev-plan');
+    const btnNextVictory = document.getElementById('btn-next-victory');
+    
+    const workspaceContainer = document.getElementById('workspace');
+    const bankContainer = document.getElementById('bank-items');
+    const termsLeftEl = document.getElementById('terms-left');
+    const victoryMsg = document.getElementById('victory-msg');
+    const instruction = document.getElementById('instruction');
+    const subtitleEl = document.getElementById('header-subtitle');
+
+    let currentTheme = 'light';
+    let currentPlanIndex = 0;
+    let bankTerms = [];
+    let selectedTermId = null;
+    let audioCtx = null;
+
+    // Аудио движок (Приятный "Дзинь")
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playSuccessSound() {
+      if (!audioCtx) return;
+      try {
+        const playBell = (freq, delay) => {
+          const osc = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          
+          gainNode.gain.setValueAtTime(0, audioCtx.currentTime + delay);
+          gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + delay + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + 0.6);
+          
+          osc.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          
+          osc.start(audioCtx.currentTime + delay);
+          osc.stop(audioCtx.currentTime + delay + 0.6);
+        };
+        
+        playBell(1046.50, 0); // Нота C6
+        playBell(1318.51, 0); // Нота E6
+      } catch(e) { console.warn("Audio error", e); }
+    }
+
+    window.toggleInfo = function(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('active');
+    };
+
+    // --- ГЕНЕРАЦИЯ ПЛАНА ---
+    function loadPlan(index) {
+      const plan = allPlans[index];
+      
+      // Отображаем нумерацию "План N из M"
+      subtitleEl.textContent = `План ${index + 1} из ${allPlans.length}: ${plan.title}`;
+      
+      let wsHTML = `
+        <div class="tree-root">
+          ${plan.title}
+          <button class="info-toggle" onclick="toggleInfo('info-main')" title="Что это?">
+            <svg><use href="#icon-info"></use></svg>
+          </button>
+        </div>
+        <div class="info-panel root-info" id="info-main">${plan.titleDesc}</div>
+        <div class="tree-container">
+      `;
+
+      bankTerms = [];
+      let termIdCounter = 1; // Фикс "бага нуля" (ID начинается с 1)
+
+      plan.categories.forEach((cat, catIndex) => {
+        const catId = `cat-${index}-${catIndex}`;
+        
+        wsHTML += `
+          <div class="tree-category">
+            <div class="category-title">
+              ${cat.title}
+              ${cat.desc ? `<button class="info-toggle" onclick="toggleInfo('info-${catId}')" title="Справка"><svg><use href="#icon-info"></use></svg></button>` : ''}
+            </div>
+            ${cat.desc ? `<div class="info-panel" id="info-${catId}">${cat.desc}</div>` : ''}
+        `;
+
+        if (cat.type === 'interactive' && cat.items) {
+          wsHTML += `<div class="slots-container">`;
+          cat.items.forEach(item => {
+            const tId = termIdCounter++;
+            bankTerms.push({
+              id: tId,
+              cat: catId,
+              text: item.text,
+              desc: item.desc
+            });
+            wsHTML += `
+              <div class="slot-wrapper">
+                <div class="slot" data-cat="${catId}" data-filled="false">Пусто</div>
+              </div>
+            `;
+          });
+          wsHTML += `</div>`;
+        }
+        wsHTML += `</div>`;
+      });
+
+      wsHTML += `</div>`;
+      workspaceContainer.innerHTML = wsHTML;
+
+      // Перемешиваем банк
+      bankTerms.sort(() => Math.random() - 0.5);
+      
+      // Сброс UI
+      selectedTermId = null;
+      victoryMsg.style.display = 'none';
+      bankContainer.style.display = 'flex';
+      instruction.textContent = "1. Нажмите на термин внизу. 2. Нажмите на пустой слот.";
+      instruction.style.backgroundColor = "var(--accent-soft)";
+      instruction.style.color = "var(--accent)";
+
+      renderBank();
+      bindSlotEvents();
+    }
+
+    // Навигация по планам
+    function loadNextPlan() {
+      currentPlanIndex = (currentPlanIndex + 1) % allPlans.length;
+      loadPlan(currentPlanIndex);
+    }
+    
+    function loadPrevPlan() {
+      currentPlanIndex = (currentPlanIndex - 1 + allPlans.length) % allPlans.length;
+      loadPlan(currentPlanIndex);
+    }
+
+    btnSkipPlan.addEventListener('click', () => {
+      initAudio();
+      loadNextPlan();
+    });
+
+    btnPrevPlan.addEventListener('click', () => {
+      initAudio();
+      loadPrevPlan();
+    });
+
+    btnNextVictory.addEventListener('click', () => {
+      loadNextPlan();
+    });
+
+    // --- ЛОГИКА ИГРЫ ---
+    function renderBank() {
+      bankContainer.innerHTML = '';
+      termsLeftEl.textContent = bankTerms.length;
+
+      if (bankTerms.length === 0) {
+        bankContainer.style.display = 'none';
+        victoryMsg.style.display = 'flex';
+        instruction.textContent = "Отличная работа! Вы собрали план целиком.";
+        instruction.style.backgroundColor = "var(--success-bg)";
+        instruction.style.color = "var(--success)";
+        return;
+      }
+
+      bankTerms.forEach(term => {
+        const div = document.createElement('div');
+        div.className = `term-item ${selectedTermId === term.id ? 'selected' : ''}`;
+        div.textContent = term.text;
+        div.dataset.id = term.id;
+        div.addEventListener('click', () => selectTerm(term.id));
+        bankContainer.appendChild(div);
+      });
+    }
+
+    function selectTerm(id) {
+      if (selectedTermId === id) {
+        selectedTermId = null;
+        instruction.textContent = "1. Нажмите на термин внизу. 2. Нажмите на пустой слот.";
+      } else {
+        selectedTermId = id;
+        instruction.textContent = "Теперь нажмите на подходящее пустое место в схеме сверху.";
+      }
+      
+      renderBank();
+      
+      const slots = document.querySelectorAll('.slot');
+      slots.forEach(slot => {
+        if (slot.dataset.filled === "false") {
+          slot.classList.toggle('highlight', selectedTermId !== null);
+        }
+      });
+    }
+
+    function bindSlotEvents() {
+      const slots = document.querySelectorAll('.slot');
+      slots.forEach(slot => {
+        slot.addEventListener('click', () => {
+          // Возврат в банк
+          if (slot.dataset.filled === "true") {
+            const returnedTerm = {
+              id: parseInt(slot.dataset.termId),
+              cat: slot.dataset.cat,
+              text: slot.querySelector('.slot-text').textContent,
+              desc: slot.dataset.desc
+            };
+            bankTerms.push(returnedTerm);
+            
+            slot.dataset.filled = "false";
+            slot.dataset.termId = "";
+            slot.dataset.desc = "";
+            slot.textContent = "Пусто";
+            slot.className = "slot"; 
+            
+            const panel = slot.parentNode.querySelector('.info-panel');
+            if (panel) panel.remove();
+            
+            renderBank();
+            if(navigator.vibrate) navigator.vibrate(20);
+            return;
+          }
+
+          if (selectedTermId === null) return;
+
+          const termObj = bankTerms.find(t => t.id === selectedTermId);
+          
+          if (slot.dataset.cat === termObj.cat) {
+            // УСПЕХ
+            slot.innerHTML = `
+              <div class="slot-content">
+                <span class="slot-text">${termObj.text}</span>
+                <button class="info-toggle" title="Посмотреть определение">
+                  <svg><use href="#icon-info"></use></svg>
+                </button>
+              </div>
+            `;
+            slot.dataset.filled = "true";
+            slot.dataset.termId = termObj.id;
+            slot.dataset.desc = termObj.desc;
+            slot.className = "slot filled"; 
+            
+            const infoPanel = document.createElement('div');
+            infoPanel.className = 'info-panel';
+            infoPanel.textContent = termObj.desc;
+            slot.parentNode.appendChild(infoPanel);
+
+            const btnInfo = slot.querySelector('.info-toggle');
+            btnInfo.addEventListener('click', (e) => {
+              e.stopPropagation();
+              infoPanel.classList.toggle('active');
+            });
+
+            playSuccessSound();
+            if (navigator.vibrate) navigator.vibrate(30);
+            
+            bankTerms = bankTerms.filter(t => t.id !== selectedTermId);
+            selectedTermId = null;
+            instruction.textContent = "1. Нажмите на термин внизу. 2. Нажмите на пустой слот.";
+            
+            slots.forEach(s => s.classList.remove('highlight'));
+            renderBank();
+          } else {
+            // ОШИБКА
+            slot.classList.remove('highlight');
+            slot.classList.remove('error-anim');
+            void slot.offsetWidth; 
+            slot.classList.add('error-anim');
+            if(navigator.vibrate) navigator.vibrate([50, 100]); 
+          }
+        });
+      });
+    }
+
+    // --- СИСТЕМНЫЕ ФУНКЦИИ ---
+    function requestFullScreenSafe() {
+      try {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+          if (htmlEl.requestFullscreen) htmlEl.requestFullscreen().catch(() => {});
+          else if (htmlEl.webkitRequestFullscreen) htmlEl.webkitRequestFullscreen(); 
+        }
+      } catch (e) {}
+    }
+
+    function toggleFullScreen() {
+      try {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) requestFullScreenSafe();
+        else {
+          if (document.exitFullscreen) document.exitFullscreen();
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        }
+      } catch (e) {}
+    }
+
+    btnStart.addEventListener('click', () => {
+      initAudio();
+      requestFullScreenSafe();
+      splashScreen.classList.add('hidden');
+      setTimeout(() => {
+        splashScreen.style.display = 'none';
+        appUi.classList.add('visible');
+        loadPlan(currentPlanIndex); // Загружаем первый план
+      }, 500);
+    });
+
+    btnFullscreen.addEventListener('click', toggleFullScreen);
+
+    const updateFullscreenIcon = () => {
+      const isFull = document.fullscreenElement || document.webkitFullscreenElement;
+      document.getElementById('icon-fullscreen-use').setAttribute('href', isFull ? '#icon-minimize' : '#icon-maximize');
+    };
+    document.addEventListener('fullscreenchange', updateFullscreenIcon);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+
+    btnTheme.addEventListener('click', () => {
+      currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+      htmlEl.setAttribute('data-theme', currentTheme);
+      document.getElementById('icon-theme-use').setAttribute('href', currentTheme === 'light' ? '#icon-moon' : '#icon-sun');
+    });
+
+  </script>
+</body>
+</html>
