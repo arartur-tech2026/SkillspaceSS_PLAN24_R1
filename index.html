@@ -257,7 +257,7 @@
       opacity: 1;
     }
     .instruction-text.hidden {
-      display: none; /* Убираем из потока для экономии места */
+      display: none; 
     }
     
     .mode-toggle {
@@ -399,6 +399,27 @@
       background-color: var(--line-color);
     }
 
+    /* Маскировка лишних "хвостов" вертикальных линий */
+    .tree-category:last-child::after {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 17px;
+      bottom: -200px;
+      width: 6px;
+      background-color: var(--bg-main);
+    }
+    
+    .slot-wrapper:last-child::after {
+      content: '';
+      position: absolute;
+      left: -27px;
+      top: calc(50% + 1px);
+      bottom: -100px;
+      width: 6px;
+      background-color: var(--bg-main);
+    }
+
     .category-title {
       background-color: var(--bg-surface);
       border: 1px solid var(--border);
@@ -439,18 +460,6 @@
       width: 25px;
       height: 2px;
       background-color: var(--line-color);
-    }
-
-    .tree-category:last-child > .slots-container { border-left: none; }
-    .tree-category:last-child > .slots-container .slot-wrapper::after {
-      content: '';
-      position: absolute;
-      left: -27px;
-      bottom: 50%;
-      width: 4px;
-      height: 100%;
-      background-color: var(--bg-main); 
-      z-index: -1;
     }
 
     /* Сами слоты */
@@ -1038,7 +1047,7 @@
             desc: "Внутреннее, многоуровневое духовное и психологическое наполнение, из которого складывается уникальный облик каждого конкретного человека.",
             type: "interactive",
             items: [
-              { text: "мировоззрение, интересы, убеждения и т.п.", desc: "Глубокие жизнен ideals, фундаментальные философские и моральные принципы, ради защиты которых человек готов активно действовать." },
+              { text: "мировоззрение, интересы, убеждения и т.п.", desc: "Глубокие жизненные идеалы, фундаментальные философские и моральные принципы, ради защиты которых человек готов активно действовать." },
               { text: "навыки, умения, привычки", desc: "Огромный практический социальный опыт и устоявшиеся стереотипы поведения, усвоенные индивидом в процессе многолетней социализации." },
               { text: "особенности психических процессов", desc: "Индивидуальные нейрофизиологические характеристики памяти, концентрации внимания, скорости реакций и эмоционального восприятия." },
               { text: "характер, темперамент, направленность личности и др.", desc: "Специфический сплав врожденной динамики нервной системы (темперамент) и приобретенных волевых и моральных качеств (характер)." }
@@ -2563,6 +2572,7 @@
     function requestFullScreenSafe() {
       try {
         if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+          // Безопасный вызов полноэкранного режима, исключающий падение в Safari/iOS
           if (htmlEl.requestFullscreen) {
             const req = htmlEl.requestFullscreen();
             if (req && typeof req.catch === 'function') req.catch(() => {});
